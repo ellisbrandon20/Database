@@ -1,0 +1,5 @@
+OPEN animals;
+SHOW animals;
+r <- select (kind == "dog") animals;
+SHOW r;
+EXIT;

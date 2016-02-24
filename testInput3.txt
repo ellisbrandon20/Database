@@ -1,0 +1,204 @@
+CREATE TABLE animals (name VARCHAR(20), kind VARCHAR(8), years INTEGER) PRIMARY KEY (name, kind);
+
+INSERT INTO animals VALUES FROM ("Joe", "cat", 4);
+INSERT INTO animals VALUES FROM ("Spot", "dog", 10);
+INSERT INTO animals VALUES FROM ("Snoopy", "dog", 3);
+INSERT INTO animals VALUES FROM ("Tweety", "bird", 1);
+INSERT INTO animals VALUES FROM ("Joe", "bird", 2);
+INSERT INTO animals VALUES FROM ("Joe", "tiger", 2);
+INSERT INTO animals VALUES FROM ("Bill", "dog", 5);
+
+SHOW animals;
+
+CREATE TABLE animals2 (name VARCHAR(20), kind VARCHAR(8), years INTEGER) PRIMARY KEY (name, kind);
+INSERT INTO animals2 VALUES FROM ("Joe", "t|ger", 2);
+INSERT INTO animals2 VALUES FROM ("BILLY", "lion", 4);
+INSERT INTO animals2 VALUES FROM ("Spot", "t|ger", 10);
+INSERT INTO animals2 VALUES FROM ("Snoopy", "panda", 3);
+INSERT INTO animals2 VALUES FROM ("Tweety", "panda", 111);
+SHOW animals;
+SHOW animals2;
+selectTest1<-select(kind=="bird")animals;
+selectTest2<-select(kind=="bird" || kind == "dog")animals;
+selectTest3<-select(kind=="bird" || kind == "dog" && years > 3)animals;
+selectTest4<-select(kind=="dog")(select (years > 3) animals);
+selectTest5<-select (name == "Bill")(select(kind=="dog")(select (years > 3) animals));
+projectTest1<-project (kind) animals;
+projectTest2<-project (kind, name) animals;
+projectTest3<-project (kind,name) (select (years > 3) animals);
+projectTest4<-project (name) (animals2 + animals);
+projectTest5<-project (years) (project (name, years) animals));
+projectTest6 <- (project (name) ( animals2 * animals));
+projectTest7 <- (project (years) (project(name,years) (project (name, kind, years )animals)));
+projectTest8<-project (kind,name) (select (kind == "dog")(select (years > 3) animals));
+
+
+unionTest1<-(select (years >3) animals) + (select (years ==2) animals);
+unionTest2<-(select (years >3) animals) + (project (kind,name,years) animals); // works for any order of project's args
+unionTest3<-(project(name, years) animals) + (project(name,years) animals2);
+unionTest4<-(project (years) (select (years >3) animals)) + (project(years) (select (years >3) animals));
+unionTest5<-(project (name, years) (select (years > 3) (select (years >1) animals))) + (project (name,years) (select (years > 3) (select (years >1) animals2)));
+unionTest6<-(project (name) animals2) + (project(name)((project (name,kind) animals) + (project (name,kind) animals)));
+differenceTest1<- ((project(years) animals) - (project(years) animals2));
+differenceTest2<- (select(kind=="tiger") animals) - (select(kind=="tiger") animals2);
+differenceTest3<- (project(name)  animals) - (project(name)  animals2);
+differenceTest4<- ((project(kind) (select(kind=="tiger") animals)) - (project(kind) (select(kind=="panda") animals2)));
+differenceTest5<-((project(kind) animals) * (project(years) animals)) - ((project(kind) animals2) * (project(years) animals2));
+
+crossProductTest6<-(select (years < 10) (project (years) animals)) * (select (years < 10) (project (years) animals2))
+crossProductTest1<-((project(kind) animals) * (project(years) animals));
+crossProductTest2<-(select(years >3) animals) * (select(INVALID ==2) animals));
+crossProductTest3<-(project(kind,name)animals) * ((project (name,years) animals) * (project(years)animals));
+crossProductTest4<-(project (years) animals) * (select(years >3) (project (years) animals));
+crossProductTest5<-((project(years) animals) * (project(kind) animals));
+naturalJoinTest1<-animals JOIN animals2;
+naturalJoinTest2<-(project(name) animals) JOIN (project(aname,kind) (rename (aname) animals2));
+EXIT;
+
+
+
+ // CHANGE ATTR NAME IN CREATE TABLE TO "ANAME
+
+
+===================================================================================================================
+STAWP
+
+unionTest1<-(select (years >3) animals) + (select (years ==2) animals);
+unionTest2<-(select (years >3) animals) + (project (kind,name,years) animals); // works for any order of project's args
+unionTest3<-(rename(aname, , ayear) animals) + (rename(aname, , ayear) animals);
+unionTest4<-(rename (, , ayear) (select (years >3) animals)) + (rename (, , ayear) (select (years >3) animals));
+unionTest5<-(project (ayear) (rename (, , ayear) (select (years >3) animals))) + (project (ayear) (rename (, , ayear) (select (years >3) animals)));
+unionTest6<-(project (name) animals2) + (project(name)((project (name,kind) animals) + (project (name,kind) animals)));
+unionTest7<-((rename(akind, ,ayears) (project (years) animals)) * (rename(bkind, ,byears) (project (years) animals));
+differenceTest1<- ((project(years) animals) - (project(years) animals2));
+differenceTest2<- (select(kind=="tiger") animals) - (select(kind=="tiger") animals2);
+differenceTest3<- (project(ayears) (rename( , , ayears) animals)) - (project(ayears) (rename(, , ayears) animals2));
+differenceTest4<- ((project(kind) (select(kind=="tiger") animals)) - (project(kind) (select(kind=="panda") animals2)));
+differenceTest5<-((project(kind) animals) * (project(years) animals)) - ((project(kind) animals2) * (project(years) animals2));
+
+crossProductTest1<-((project(kind) animals) * (project(year) animals));
+crossProductTest2<-((rename(aname) animals) * (rename(, akind, ) animals));
+crossProductTest3<-(project(kind,name)animals) * ((project (name,years) animals) * (project(years)animals));
+crossProductTest4<-((rename(akind, ,ayears) (project (years) animals)) * (rename(bkind, ,byears) (project (years) animals));
+crossProductTest5<-((project(year) animals) * (project(kind) animals));
+naturalJoinTest1<-animals JOIN animals2;
+naturalJoinTest2<- (project(name) animals) JOIN (project(name,kind) animals2);
+
+======================================================================================================
+//this is why we need setp 3 in RENAME
+renameTest1<-(rename(aname, , ayear) animals) + (rename(aname, , ayear) animals);
+renameTest2<- (project(ayears) (rename( , , ayears) animals)) - (project(kind) (rename(, , ayears) animals2));
+
+
+
+==================================== SELECT ===================================================
+selectTest1<-select(kind=="bird")animals;
+selectTest2<-select(kind=="bird" || kind == "dog")animals;
+selectTest3<-select(kind=="bird" || kind == "dog" && years > 3)animals;
+selectTest4<-select(kind=="dog")(select (years > 3) animals);
+selectTest5<-select (name == "Bill")(select(kind=="dog")(select (years > 3) animals));
+
+	====== NO WORKIE ==========
+
+
+
+	===== SHOULD NOT WORK =====
+	
+	===== SHOULD NOT WORK BUT CRASH=====
+
+==================================== PROJECT ===================================================
+projectTest1<-project (kind) animals;
+projectTest2<-project (kind, name) animals;
+projectTest3<-project (kind,name) (select (years > 3) animals);
+projectTest4<-project (aname) (rename (aname, , ) animals);
+projectTest5<-project (ayear) (rename (, , ayear) (select (years >3) animals));
+projectTest6 <- (project (newName) (rename (, , newName) animals));
+projectTest7 <- (project (years) (project(name,years) animals));
+projectTest8<-project (years) (rename (, , newName) animals);
+projectTest9<-project (kind,name) (select (kind == "dog")(select (years > 3) animals));
+
+	====== NO WORKIE ==========
+
+
+
+	===== SHOULD NOT WORK =====
+
+
+==================================== RENAME ====================================================
+renameTest1<-rename(aname,akind) animals;
+renameTest2<-rename(aname, , ayears) animals;
+renameTest3<-rename(akind, ,ayears) (project (kind) animals);
+renameTest4<-(rename (, , ayear) (select (years >3) animals)) + (rename (, , ayear) (select (years >3) animals));
+renameTest5<- rename(aname, , ayears, bname, bkind, ) (animals * animals2);
+
+
+	====== NO WORKIE ==========
+
+
+	===== SHOULD NOT WORK =====
+	
+	
+===================================== UNION =====================================================
+unionTest1<-(select (years >3) animals) + (select (years ==2) animals);
+unionTest2<-(select (years >3) animals) + (project (kind,name,years) animals); // works for any order of project's args
+unionTest3<-(rename(aname, , ayear) animals) + (rename(aname, , ayear) animals);
+unionTest4<-(rename (, , ayear) (select (years >3) animals)) + (rename (, , ayear) (select (years >3) animals));
+unionTest5<-(project (ayear) (rename (, , ayear) (select (years >3) animals))) + (project (ayear) (rename (, , ayear) (select (years >3) animals)));
+unionTest6<-(project (name) animals2) + (project(name)((project (name,kind) animals) + (project (name,kind) animals)));
+unionTest7<-((rename(akind, ,ayears) (project (years) animals)) * (rename(bkind, ,byears) (project (years) animals));
+
+
+	====== NO WORKIE ==========
+a<-(select (years >3) animals) + (rename (, , ayears) animals); // Seg fault and not union compatible
+a<-(rename(ASDASDA, ,) animals) + (rename(aname, , ayear) animals); // Should not be union compatible but is
+a<-(project (kind) animals) + (project (name) animals); // SEG FAULT, not union compatible
+
+
+
+	===== SHOULD NOT WORK =====
+a<-(select (years >3) animals) + (project (kind) animals); //SEG FAULT needs to quit after error message
+a<-(project (kind) animals) + (project (name) animals); // SEG FAULT shows that it's not union compatible
+//not union comp
+a<-(rename(ASDASDA, ,) animals) + (rename(aname, , ayear) animals);
+a<-(rename(ASDASDA, ,) animals) + (rename(aname, , ayear) animals);
+c<-(select (years >3) animals) + (project (kind) animals);
+
+======================================= DIFF =====================================================
+differenceTest1<- ((project(years) animals) - (project(years) animals2));
+differenceTest2<- (select(kind=="tiger") animals) - (select(kind=="tiger") animals2);
+differenceTest3<- (project(ayears) (rename( , , ayears) animals)) - (project(ayears) (rename(, , ayears) animals2));
+differenceTest4<- ((project(kind) (select(kind=="tiger") animals)) - (project(kind) (select(kind=="panda") animals2)));
+differenceTest5<-((project(kind) animals) * (project(years) animals)) - ((project(kind) animals2) * (project(years) animals2));
+
+	====== NO WORKIE ==========
+
+
+	
+	===== SHOULD NOT WORK =====	
+// Anything not union compatible
+a<- (project(ayears) (rename( , , ayears) animals)) - (project(kind) (rename(, , ayears) animals2));
+	
+====================================== PRODUCT ====================================================
+crossProductTest1<-((project(kind) animals) * (project(year) animals));
+crossProductTest2<-((rename(aname) animals) * (rename(, akind, ) animals));
+crossProductTest3<-(project(kind,name)animals) * ((project (name,years) animals) * (project(years)animals));
+crossProductTest4<-((rename(akind, ,ayears) (project (years) animals)) * (rename(bkind, ,byears) (project (years) animals));
+crossProductTest5<-((project(year) animals) * (project(kind) animals));
+
+	====== NO WORKIE ==========
+
+
+	
+	===== SHOULD NOT WORK =====	
+// Anything not union compatible
+
+===================================== NATURAL JOIN ===================================================
+naturalJoinTest1<-animals JOIN animals2;
+naturalJoinTest2<- (project(name) animals) JOIN (project(name,kind) animals2);
+
+
+	====== NO WORKIE ==========
+
+	
+	
+	===== SHOULD NOT WORK =====		

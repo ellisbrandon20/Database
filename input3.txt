@@ -1,0 +1,89 @@
+CREATE TABLE animals (name VARCHAR(20), kind VARCHAR(8), years INTEGER) PRIMARY KEY (name, kind);
+INSERT INTO animals VALUES FROM ("Joe", "cat", 4);
+INSERT INTO animals VALUES FROM ("Spot", "dog", 10);
+INSERT INTO animals VALUES FROM ("Snoopy", "dog", 3);
+INSERT INTO animals VALUES FROM ("Tweety", "bird", 1);
+INSERT INTO animals VALUES FROM ("Joe", "bird", 2);
+INSERT INTO animals VALUES FROM ("name", "kind", 1);
+SHOW animals;
+
+a <- select (kind == "dog") animals;
+SHOW a;
+INSERT INTO a VALUESFROMRELATION (select (kind == "cat") animals);
+SHOW a;
+UPDATE a SET kind = bird WHERE (kind == "dog");
+SHOW a;
+EXIT;
+INSERT INTO animals VALUE FROM ("name", "kind", 1);
+
+SHOW animals;
+
+
+SHOW a;
+INSERT INTO a VALUESFROMRELATION (select (kind == "cat") animals)
+
+
+common_names <- project (name) stuff;
+SHOW dogs;
+SHOW old_dogs;
+b <- select (kind == "dog") animals;
+c <- select (years < 3) animals;
+d <- select (years>7) animals;
+a <- rename (aname, akind) (project (name, kind) animals);
+
+testarino <- b + (c + d);
+
+cp <- a * animals;
+SHOW cp;
+select_123 <- select (aname == name && akind != kind) (a * animals);
+SHOW select_123;
+project_123 <- project (name) select_123;
+SHOW project_123;
+
+stuff <- a * animals;
+SHOW stuff;
+b <- select (aname == name && akind != kind) stuff;
+SHOW b;
+common_names <- project (name) b;
+SHOW common_names;
+
+nat_join <- JOIN
+
+select (kind == "dog") (select (years > 3) animals)
+
+WRITE animals;
+CLOSE animals;
+EXIT;
+old_dogs <- select (age > 10) dogs;
+
+
+
+common_names <- select (aname == name && akind != kind) stuff;
+
+======================================================================================
+GOOD LIST
+original_Gangsta <- ;
+SHOW original_Gangsta;
+project_1 <- project (name, kind) animals;
+SHOW project_1;
+natJoin <- (project (name, kind) animals) JOIN (project (years) animals);
+SHOW natJoin;
+cats_or_dogs <- dogs + (select (kind == "cat") animals);
+birds <- animals - (dogs + (select (kind == "cat") animals));
+SHOW birds;
+a <- rename (aname, akind) (project (name, kind) animals);
+dogs <- select (name == "Joe") animals;
+SHOW a;
+======================================================================================
+UNTESTED LIST
+======================================================================================
+BAD LIST
+
+common_names <- project (name) (select (aname == name && akind != kind) (a * animals));
+answer <- common_names;
+SHOW answer;
+a <- rename (aname, akind) (project (name, kind) animals);
+example <- a * animals;
+SHOW example;
+CREATE TABLE species (kind VARCHAR(10)) PRIMARY KEY (kind);
+INSERT INTO species VALUES FROM RELATION (project (kind) animals);

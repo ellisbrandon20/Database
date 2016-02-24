@@ -1,0 +1,75 @@
+input: CREATE TABLE animals (name VARCHAR(20), kind VARCHAR(8), years INTEGER) PRIMARY KEY (name, kind);
+input: INSERT INTO animals VALUES FROM ("Joe", "cat", 4);
+input: INSERT INTO animals VALUES FROM ("Spot", "dog", 10);
+input: INSERT INTO animals VALUES FROM ("Snoopy", "dog", 3);
+input: INSERT INTO animals VALUES FROM ("Tweety", "bird", 1);
+input: INSERT INTO animals VALUES FROM ("Joe", "bird", 2);
+input: INSERT INTO animals VALUES FROM ("Joe", "tiger", 2);
+input: INSERT INTO animals VALUES FROM ("Bill", "dog", 5);
+input: SHOW animals;
+TABLE: animals
+*name[VARCHAR(20)]  *kind[VARCHAR(8)]   years[INTEGER]      
+Joe                 cat                 4                   
+Spot                dog                 10                  
+Snoopy              dog                 3                   
+Tweety              bird                1                   
+Joe                 bird                2                   
+Joe                 tiger               2                   
+Bill                dog                 5                   
+input: CREATE TABLE animals2 (name VARCHAR(20), kind VARCHAR(8), years INTEGER) PRIMARY KEY (name, kind);
+input: INSERT INTO animals2 VALUES FROM ("Joe", "t|ger", 2);
+input: INSERT INTO animals2 VALUES FROM ("BILLY", "lion", 4);
+input: INSERT INTO animals2 VALUES FROM ("Spot", "t|ger", 10);
+input: INSERT INTO animals2 VALUES FROM ("Snoopy", "panda", 3);
+input: INSERT INTO animals2 VALUES FROM ("Tweety", "panda", 111);
+input: SHOW animals;
+TABLE: animals
+*name[VARCHAR(20)]  *kind[VARCHAR(8)]   years[INTEGER]      
+Joe                 cat                 4                   
+Spot                dog                 10                  
+Snoopy              dog                 3                   
+Tweety              bird                1                   
+Joe                 bird                2                   
+Joe                 tiger               2                   
+Bill                dog                 5                   
+input: SHOW animals2;
+TABLE: animals2
+*name[VARCHAR(20)]  *kind[VARCHAR(8)]   years[INTEGER]      
+Joe                 t|ger               2                   
+BILLY               lion                4                   
+Spot                t|ger               10                  
+Snoopy              panda               3                   
+Tweety              panda               111                 
+input: selectTest1<-select(kind=="bird")animals;
+input: selectTest2<-select(kind=="bird" || kind == "dog")animals;
+input: selectTest3<-select(kind=="bird" || kind == "dog" && years > 3)animals;
+input: selectTest4<-select(kind=="dog")(select (years > 3) animals);
+input: selectTest5<-select (name == "Bill")(select(kind=="dog")(select (years > 3) animals));
+input: projectTest1<-project (kind) animals;
+input: projectTest2<-project (kind, name) animals;
+input: projectTest3<-project (kind,name) (select (years > 3) animals);
+input: projectTest4<-project (name) (animals2 + animals);
+input: projectTest5<-project (years) (project (name, years) animals));
+input: projectTest6 <- (project (name) ( animals2 * animals));
+input: projectTest7 <- (project (years) (project(name,years) (project (name, kind, years )animals)));
+input: projectTest8<-project (kind,name) (select (kind == "dog")(select (years > 3) animals));
+input: unionTest1<-(select (years >3) animals) + (select (years ==2) animals);
+input: unionTest2<-(select (years >3) animals) + (project (kind,name,years) animals); // works for any order of project's args
+input: unionTest3<-(project(name, years) animals) + (project(name,years) animals2);
+input: unionTest4<-(project (years) (select (years >3) animals)) + (project(years) (select (years >3) animals));
+input: unionTest5<-(project (name, years) (select (years > 3) (select (years >1) animals))) + (project (name,years) (select (years > 3) (select (years >1) animals2)));
+input: unionTest6<-(project (name) animals2) + (project(name)((project (name,kind) animals) + (project (name,kind) animals)));
+input: differenceTest1<- ((project(years) animals) - (project(years) animals2));
+input: differenceTest2<- (select(kind=="tiger") animals) - (select(kind=="tiger") animals2);
+input: differenceTest3<- (project(name)  animals) - (project(name)  animals2);
+input: differenceTest4<- ((project(kind) (select(kind=="tiger") animals)) - (project(kind) (select(kind=="panda") animals2)));
+input: differenceTest5<-((project(kind) animals) * (project(years) animals)) - ((project(kind) animals2) * (project(years) animals2));
+input: crossProductTest6<-(select (years < 10) (project (years) animals)) * (select (years < 10) (project (years) animals2))
+input: crossProductTest1<-((project(kind) animals) * (project(years) animals));
+input: crossProductTest2<-(select(years >3) animals) * (select(INVALID ==2) animals));
+input: crossProductTest3<-(project(kind,name)animals) * ((project (name,years) animals) * (project(years)animals));
+input: crossProductTest4<-(project (years) animals) * (select(years >3) (project (years) animals));
+input: crossProductTest5<-((project(years) animals) * (project(kind) animals));
+input: naturalJoinTest1<-animals JOIN animals2;
+input: naturalJoinTest2<-(project(name) animals) JOIN (project(aname,kind) (rename (aname) animals2));
+input: EXIT;

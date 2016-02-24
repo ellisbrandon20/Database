@@ -1,0 +1,6 @@
+|*name[VARCHAR(20)]||*kind[VARCHAR(8)]||years[INTEGER]|
+|Joe||t\|"ger||2|
+|BILLY||li"on||4|
+|Spot||t"\|ger||10|
+|Snoopy||pa""nda||3|
+|Tweety||"panda"||111|

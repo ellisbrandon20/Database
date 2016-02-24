@@ -1,0 +1,6 @@
+|*Name[varchar(10)]||DOP[varchar(20)]||Make[varchar(30)]||Color[varchar(50)]|
+|F\|red||12/12/1990||Ford||Blue|
+|Bob||11/1/2004||Ford||Yellow|
+|Rachel||5/14/1995||Ford||White|
+|Jill||2/14/1999||Ford||Yellow|
+|Brandon||3/15/2010||Toyota||White|

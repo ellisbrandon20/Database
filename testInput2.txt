@@ -1,0 +1,151 @@
+CREATE TABLE animals (name VARCHAR(20), kind VARCHAR(8), years INTEGER) PRIMARY KEY (name, kind);
+
+INSERT INTO animals VALUES FROM ("Joe", "cat", 4);
+INSERT INTO animals VALUES FROM ("Spot", "dog", 10);
+INSERT INTO animals VALUES FROM ("Snoopy", "dog", 3);
+INSERT INTO animals VALUES FROM ("Tweety", "bird", 1);
+INSERT INTO animals VALUES FROM ("Joe", "bird", 2);  
+INSERT INTO animals VALUES FROM ("Joe", "tiger", 2);
+INSERT INTO animals VALUES FROM ("Bill", "dog", 5);
+
+//SHOW animals;
+
+CREATE TABLE animals2 (name VARCHAR(20), kind VARCHAR(8), years INTEGER) PRIMARY KEY (name, kind);
+INSERT INTO animals2 VALUES FROM ("Joe", "t|"ger", 2);
+INSERT INTO animals2 VALUES FROM ("BILLY", "li"on", 4);
+INSERT INTO animals2 VALUES FROM ("Spot", "t"|ger", 10);
+INSERT INTO animals2 VALUES FROM ("Snoopy", "pa""nda", 3);
+INSERT INTO animals2 VALUES FROM ("Tweety", ""panda"", 111);
+
+//SHOW animals2;
+newAnimals2 <- animals2;
+WRITE newAnimals2;
+CLOSE newAnimals2;
+//SHOW newAnimals2;
+OPEN newAnimals2;
+//SHOW newAnimals2;
+
+a<-(project(kind,name)animals) + animals;
+//this is why we need setp 3 in RENAME
+a<-(rename(aname, , ayear) animals) + (rename(aname, , ayear) animals);
+a2<-((rename(akind, ,ayears) (project (years) animals))* (rename(bkind, ,byears) (project (years) animals));
+//SHOW a2;
+
+//SHOW ADAM AND VINCENT THIS WORKS
+a<-(project (years) (select (years >3) animals)) + (project (years) (select (years >3) animals));
+p_1 <-(project (years) (select (years >3) animals));
+p_2 <-(project (years) (select (years >3) animals));
+//SHOW (p_1 + p_2);
+
+
+
+SHOW ADAM AND VINCENT***************
+a1<-(project(kind,name)animals) * ((project (name,years) animals) * (project(years)animals));
+//SHOW a1;
+
+*********** SHOULD WORK DONT KNOW WHY
+p_1 <- (rename (, , ayear) (select (years >3) animals));
+SHOW p_1;
+p_2 <- (rename (, , ayear) (select (years >3) animals));
+//SHOW p_2;
+//SHOW(p_1 + p_2);
+
+
+
+
+
+
+
+==================================== SELECT ===================================================
+a<-select(kind=="bird")animals;
+a<-select(kind=="bird" || kind == "dog")animals;
+a<-select(kind=="bird" || kind == "dog" && years > 3)animals;
+a<-select(kind=="dog")(select (years > 3) animals);
+a<-select (name == "Bill")(select(kind=="dog")(select (years > 3) animals));
+
+	====== NO WORKIE ==========
+
+
+
+	===== SHOULD NOT WORK =====
+	
+	===== SHOULD NOT WORK BUT CRASH=====
+
+==================================== PROJECT ===================================================
+a<-project (kind) animals;
+a<-project (kind, name) animals;
+a<-project (kind,name) (select (years > 3) animals);
+a<-project (aname) (rename (aname, , ) animals);
+a<-project (ayear) (rename (, , ayear) (select (years >3) animals));
+a <- (project (newName) (rename (, , newName) animals));
+b <- (project (years) (project(name,years) animals));
+a<-project (years) (rename (, , newName) animals);
+
+
+	====== NO WORKIE ==========
+a<-project (kind,name) (select (kind == "dog")(select (years > 3) animals));
+
+
+
+	===== SHOULD NOT WORK =====
+
+
+==================================== RENAME ====================================================
+a<-rename(aname,akind) animals;
+a<-rename(aname, , ayears) animals;
+a<-rename(akind, ,ayears) (project (kind) animals);
+
+
+	====== NO WORKIE ==========
+a<-(rename (, , ayear) (select (years >3) animals)) + (rename (, , ayear) (select (years >3) animals)); // Does not parse tokens correctly
+
+
+	===== SHOULD NOT WORK =====
+	
+	
+===================================== UNION =====================================================
+a<-(select (years >3) animals) + (select (years ==2) animals);
+a<-(select (years >3) animals) + (project (kind,name,years) animals); // works for any order of project's args
+a<-(rename(aname, , ayear) animals) + (rename(aname, , ayear) animals);
+a<-(rename (, , ayear) (select (years >3) animals)) + (rename (, , ayear) (select (years >3) animals));
+a<-(project (ayear) (rename (, , ayear) (select (years >3) animals))) + (project (ayear) (rename (, , ayear) (select (years >3) animals)));
+a<-(project (name) animals2) + (project(name)((project (name,kind) animals) + (project (name,kind) animals)));
+
+	====== NO WORKIE ==========
+a<-(select (years >3) animals) + (rename (, , ayears) animals); // Seg fault and not union compatible
+a<-(rename(ASDASDA, ,) animals) + (rename(aname, , ayear) animals); // Should not be union compatible but is
+a<-(project (kind) animals) + (project (name) animals); // SEG FAULT, not union compatible 
+
+// Token errors
+
+
+
+	===== SHOULD NOT WORK =====
+a<-(select (years >3) animals) + (project (kind) animals); //SEG FAULT needs to quit after error message
+a<-(project (kind) animals) + (project (name) animals); // SEG FAULT shows that it's not union compatible
+
+
+======================================= DIFF =====================================================
+a<- ((project(years) animals) - (project(years) animals2));
+
+
+	====== NO WORKIE ==========
+	
+
+	
+	===== SHOULD NOT WORK =====	
+	
+	
+====================================== PRODUCT ====================================================
+a<-((project(kind) animals) * (project(year) animals));
+a<-((rename(aname) animals) * (rename(, akind, ) animals));
+a<-(project(kind,name)animals) * ((project (name,years) animals) * (project(years)animals));
+a<-((rename(akind, ,ayears) (project (years) animals)) * (rename(bkind, ,byears) (project (years) animals));
+a<-((project(year) animals) * (project(kind) animals));
+
+	====== NO WORKIE ==========
+EXIT;
+
+	
+	===== SHOULD NOT WORK =====	
+	

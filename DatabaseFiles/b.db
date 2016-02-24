@@ -1,0 +1,12 @@
+|*aName[VARCHAR(20)]||*kind[VARCHAR(8)]||years[INTEGER]|
+|Joe||cat||4|
+|Spot||dog||10|
+|Snoopy||dog||3|
+|Tweety||bird||1|
+|Joe||bird||2|
+|Joe||tiger||2|
+|Joe||t\|ger||2|
+|Joe||lion||4|
+|Spot||t\|ger||10|
+|Snoopy||panda||3|
+|Tweety||panda||111|

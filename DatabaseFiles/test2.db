@@ -1,0 +1,6 @@
+|*Name[varchar(10)]||DOP[varchar(20)]||Make[varchar(30)]||Model[varchar(40)]||Year[integer]||Color[varchar(50)]|
+|F\|red||12/12/1990||Ford||F-150||1991||Blue|
+|Bob||11/1/2004||Ford||F-150||2005||Red|
+|Rachel||5/14/1995||Ford||F-150||1995||White|
+|Jill||2/14/1999||Ford||F-150||1999||Yellow|
+|Brandon||3/15/2010||Toyota||Corolla||2010||White|
