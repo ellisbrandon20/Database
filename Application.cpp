@@ -1,167 +1,96 @@
+#include <cassert>
+#include <cstring>
 #include <iostream>
-#include <istream>
-#include <string>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
 
 using namespace std;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void printMenu()
-{
-	cout << "\n\n";
-	cout << "------------------------- MENU -------------------------" << endl;
-	cout << "--------------------------------------------------------" << endl;
-	cout << "\n\n";
-	cout << "1. Quit program" << endl;
-	cout << "2. Make a pending/confirmer sale" << endl;
-	cout << "3. Remove a pending Sale" << endl; // DELETE
-	cout << "4. See Employee Stats" << endl; //PROJECT empName Orders, Car
-	cout << "5. Compare Employees" << endl; // set DIFFERNCE
-	cout << "6." << endl;
-	cout << "7. Look up a Sale" << endl;
-	cout << "8. Search by name, model, and/or employee" << endl;
-	cout << "9. Expand Dealership" << endl;
-	cout << "10. Log a payment" << endl; // update
-	cout << "\n\n";
-	cout << "--------------------------------------------------------" << endl;
-	cout << "--------------------------------------------------------" << endl;
-	cout << "\n" << endl;
-	
-}
-string removeSale()
-{
-	cout << " ---- Remove a pending Sale ---- " << endl;
-	cout << "Do you have the Order ID? (yes/no)" << endl;
-	string orderIDflag;
-	cout << ">";
-	cin >> orderIDflag;
-	if(orderIDflag == "yes")
+int main()
+{	
+	int bytes_read;
+	string receive_output;
+	int fileDescriptor_ParentToChild[2];
+	int fileDescriptor_ChildToParent[2];
+	pipe(fileDescriptor_ParentToChild);//create pipe-to-child
+	pipe(fileDescriptor_ChildToParent);//create pipe-from-child
+	int childPID = fork();
+	if (childPID < 0)
 	{
-		cout << "Enter the Order ID" << endl;
-		cout << ">";
-		string orderID;
-		cin >> orderID;
-		cout << "WHAT" << endl;
-		string sql = "DELETE FROM Sales WHERE OrderID == " + orderID ;
-		return sql;
+		cout << "Fork failed" << endl;
+		exit(-1);
 	}
-	else if (orderIDflag == "no")
+	else if (childPID == 0)
 	{
-		cout << "Do you have the Employee ID, Name of Customer, and the Model of the Sale? (yes/no)" 
-		     << endl;
-		string validInfoFlag;
-		cout << ">";
-		cin >> validInfoFlag;
-		if(validInfoFlag == "yes")
-		{
-			cout << "What is the Employee ID number? (Enter only digits)" << endl;
-			string employeeID;
-			cin >> employeeID;
-			cout << "What is the name of the Customer for this pending Sale? (enter only alpha)" << endl;
-			string customerName;
-			cin >> customerName;
-			cout << "What is the Model of the car for this pending Sale?" << endl;
-			string model;
-			cin >> model;
-			string sql = "DELETE FROM Sales WHERE employeeID == " + employeeID + " && customerName == " 
-						+customerName+ " && model == " + model + ";";
-			return sql;
-		}
-		else
-		{
-			cout << "Sorry we need either the Order ID or the Employee ID, Name of the customer, and Model"
-				 << " of the car that was sold to perform this action." << endl;
-		}
+		dup2(fileDescriptor_ParentToChild[0], 0);//close stdout & make read end of p2c into stdout
+		close(fileDescriptor_ParentToChild[0]);//close read end of p2c
+		close(fileDescriptor_ParentToChild[1]);//close write end of p2c
+		dup2(fileDescriptor_ChildToParent[1], 1);//close stdin & make read end of pFc into stdin
+		close(fileDescriptor_ChildToParent[1]);//close write end of pFc
+		close(fileDescriptor_ChildToParent[0]);//close read end of pFc
+
+		//Execute the required program
+		execvp("./main", NULL);
+		cout<<"Child is exiting"<<endl;
+		exit(0);
 	}
 	else
 	{
-		cout << "Incorrect input please re run this command and try again." << endl;
-		return "ERROR";
-	}
-}
-
-int main()
-{
-	string sql;
-	cout<<"\n\nWelcome to MEGAULTRASOOPER DEALERSHIP database software"<<endl;
-	int choice = 0;
-	
-	printMenu();
-
-	cout << "To choose what you want to do, please enter the number associated with that command." 
-			 << endl;
-			 
-	while (choice != 1)
-	{		
-		cout << ">";
-		cin >> choice;
-		
-		if(choice <= 0 || choice > 9)
+		close( fileDescriptor_ParentToChild[0]);//close read end of p2c
+		close(fileDescriptor_ChildToParent[1]);//close write end of pFc
+		char readbuffer[255];
+		const char* s ="";
+		int choice = 0;
+		while(choice !=9)
 		{
-			cout << "Sorry, there is no command associated with your input please refer to the menu"
-				 << " and try inputting again." << endl;
-			//cout << ">";
-			//cin >> choice;
-		}
-		else{
-			cout << "Choice: " << choice << endl; // to double check for erroneous input
-			
-			//run switch statement to call correct funtion to execute correct dbms function
+			cout<<"List of available commands"<<endl;
+			cout<<"Please enter the number of the desired command"<<endl;
+			cin>>choice;
 			switch(choice)
 			{
+				case 0:
+					s = "SHOW animals;\n";
+					write( fileDescriptor_ParentToChild[1], s, strlen(s));
+					usleep(1000);
+					bytes_read = read(fileDescriptor_ChildToParent[0], readbuffer, sizeof(readbuffer)-1);
+					readbuffer[bytes_read] = '\0';
+					receive_output += readbuffer;
+					cout<<receive_output<<endl;
+				break;
 				case 1:
-						//addStock();
-						break;
+					s = "OPEN animals;\n";
+					write( fileDescriptor_ParentToChild[1], s, strlen(s));
+					cout<<"Looping1"<<endl;
+					usleep(1000);
+					bytes_read = read(fileDescriptor_ChildToParent[0], readbuffer, sizeof(readbuffer)-1);
+					readbuffer[bytes_read] = '\0';
+					receive_output += readbuffer;
+					cout<<receive_output<<endl;
+				break;
 				case 2:
-						break;
+				break;
 				case 3:
-						sql = removeSale();
-						// on bad input returns "ERROR"
-						cout << "SQL : " + sql << endl;
-						break;
+				break;
 				case 4:
-						break;
+				break;
 				case 5:
-						break;
+				break;
 				case 6:
-						break;
+				break;
 				case 7:
-						break;
+				break;
 				case 8:
-						break;
-				default:
-					break;
-				
+				break;
+				case 9:
+				break;
 			}
-			// if (sql == "ERROR")
-				// skipe sql statement
-			// else
-				// RUN THE SQL
-		}	
+		}
+		cout<<"Exiting"<<choice<<endl;
 	}
-	// choice = 1
-	//HERE RUN EXIT COMMAND
-	return 0;
+	cout<<"Super Gone"<<endl;
 }
-
