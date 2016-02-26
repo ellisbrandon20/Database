@@ -6,27 +6,28 @@ using namespace std;
 
 
 
+/*
+
+
+
+	For removeSale() if we can get delete from to work with multiple conditions then add the "pending" as a condition
 
 
 
 
 
+*/
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+bool isNumber(string& input)
+{
+	string::iterator iter = input.begin();
+	while(iter != input.end() && isdigit(*iter))
+		iter++;
+	
+	return !input.empty() && iter == input.end();
+}
 void printMenu()
 {
 	cout << "\n\n";
@@ -51,54 +52,111 @@ void printMenu()
 }
 string removeSale()
 {
+	cout << "\n\n";
 	cout << " ---- Remove a pending Sale ---- " << endl;
-	cout << "Do you have the Order ID? (yes/no)" << endl;
-	string orderIDflag;
+	cout << "What do you want to delete by?" << endl;
+	cout << "1. Order ID" << endl;
+	cout << "2. Employee" << endl;
+	cout << "3. Customer" << endl;
+	cout << "4. Model" << endl;
 	cout << ">";
-	cin >> orderIDflag;
-	if(orderIDflag == "yes")
+	int deleteCommand;
+	cin >> deleteCommand;
+	
+	string sql = "";
+	string orderID = "";
+	string orderOP = "";
+	string employeeID = "";
+	string employeeIDop = "";
+	string customerOP = "";
+	string customer = "";
+	string model = "";
+	string modelOP = "";
+	string require = ""; // if == "yes" place "&&" in the sql otherwise place "||" in sql
+	string require2 = ""; // if == "yes" place "&&" in the sql otherwise place "||" in sql
+	
+	switch(deleteCommand)
 	{
-		cout << "Enter the Order ID" << endl;
-		cout << ">";
-		string orderID;
-		cin >> orderID;
-		cout << "WHAT" << endl;
-		string sql = "DELETE FROM Sales WHERE OrderID == " + orderID ;
-		return sql;
-	}
-	else if (orderIDflag == "no")
-	{
-		cout << "Do you have the Employee ID, Name of Customer, and the Model of the Sale? (yes/no)" 
-		     << endl;
-		string validInfoFlag;
-		cout << ">";
-		cin >> validInfoFlag;
-		if(validInfoFlag == "yes")
-		{
-			cout << "What is the Employee ID number? (Enter only digits)" << endl;
-			string employeeID;
+		case 1:
+			//Order ID
+			cout << "\nWhat is the Order ID number?" << endl;
+			cout << ">";
+			
+			cin >> orderID;
+
+			cout << "\nAre you looking for Order ID eqaul to(=) or not eqaul(!=) to?" << endl;
+
+			cout << ">";
+			cin >> orderOP;
+			
+			if(!isNumber(orderID)) return "ERROR";
+			
+			if (orderOP == "==")
+				sql = "(DELETE FROM sales WHERE OrderID == " + orderID + ");";
+			else
+				sql = "(DELETE FROM sales WHERE OrderID != " + orderID + ");";
+
+			break;
+		case 2:
+			//Employee ID
+			cout <<"\nWhat is the Employee ID?" << endl;
+			cout << ">";
 			cin >> employeeID;
-			cout << "What is the name of the Customer for this pending Sale? (enter only alpha)" << endl;
-			string customerName;
-			cin >> customerName;
-			cout << "What is the Model of the car for this pending Sale?" << endl;
-			string model;
+			if(!isNumber(employeeID)) return "ERROR";
+			
+			//find op
+			cout << "Are you deleting records that are eqaul (=) to or not equal (!=) to Employee ID?"
+				 << endl;
+			cout << ">";
+			cin >> employeeIDop;
+			
+			if(employeeIDop == "=")
+				sql = "DELETE FROM sales WHERE (employeeID == " + employeeID + ");";
+			else
+				sql = "DELETE FROM sales WHERE (employeeID != " + employeeID + ");";
+			
+			break;
+		case 3:
+			//Customer
+			cout <<"\nWhat is the Customer's name?" << endl;
+			cout << ">";
+			cin >> customer;
+			
+			//find op
+			cout << "Are you deleting records that are eqaul (=) to or not equal (!=) to Customer name?"
+				 << endl;
+			cout << ">";
+			cin >> customerOP;
+			
+			if(customerOP == "=")
+				sql = "DELETE FROM sales WHERE (customerName == " + customer + ");";
+			else
+				sql = "DELETE FROM sales WHERE (customerName != " + customer + ");";
+
+			break;
+		case 4:
+			//Model
+			cout <<"\nWhat is the Model name of the car?" << endl;
+			cout << ">";
 			cin >> model;
-			string sql = "DELETE FROM Sales WHERE employeeID == " + employeeID + " && customerName == " 
-						+customerName+ " && model == " + model + ";";
-			return sql;
-		}
-		else
-		{
-			cout << "Sorry we need either the Order ID or the Employee ID, Name of the customer, and Model"
-				 << " of the car that was sold to perform this action." << endl;
-		}
+			
+			//find op
+			cout << "Are you deleting records that are eqaul (=) to or not equal (!=) to Model name"
+				 << endl;
+			cout << ">";
+			cin >> modelOP;
+			
+			if(modelOP == "=")
+				sql = "DELETE FROM sales WHERE (model == " + model + ");";
+			else
+				sql = "DELETE FROM sales WHERE (model != " + model + ");";
+			
+			break;
+		default:
+			break;
+			
 	}
-	else
-	{
-		cout << "Incorrect input please re run this command and try again." << endl;
-		return "ERROR";
-	}
+	return sql;
 }
 
 int main()
@@ -107,13 +165,13 @@ int main()
 	cout<<"\n\nWelcome to MEGAULTRASOOPER DEALERSHIP database software"<<endl;
 	int choice = 0;
 	
-	printMenu();
-
-	cout << "To choose what you want to do, please enter the number associated with that command." 
-			 << endl;
+	
 			 
 	while (choice != 1)
 	{		
+		printMenu();
+		cout << "To choose what you want to do, please enter the number associated with that command." 
+			 << endl;
 		cout << ">";
 		cin >> choice;
 		
@@ -139,6 +197,9 @@ int main()
 						sql = removeSale();
 						// on bad input returns "ERROR"
 						cout << "SQL : " + sql << endl;
+						cout << "Running command..." << endl;
+						// run command here
+						cout << "Command complete" << endl;
 						break;
 				case 4:
 						break;
