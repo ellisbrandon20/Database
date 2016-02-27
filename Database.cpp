@@ -103,7 +103,15 @@ void Database::closeTable(string tableName)
 ****/
 void Database::writeTable(string tableName)
 {
-	ofstream outputFile;
+	cerr<<"SHould be writing"<<endl;
+	//ofstream outputFile(DBFILEPATH+tableName + ".db", ios::out);
+	
+	//if(!outputFile)
+	//{
+	//	cout << "The terrorists won...." << endl;
+	//}
+	ofstream outputFile(DBFILEPATH+tableName + ".db");
+	
     int tblIndex = getTableIndex(_dbTables, tableName);   
     if(tblIndex < 0)
     {
@@ -112,8 +120,17 @@ void Database::writeTable(string tableName)
     else
     {
 		string file = DBFILEPATH + tableName + ".db";
-		outputFile.open(file.c_str());
-        // temporary table object
+		cerr<<file<<endl;
+		//outputFile.open(file.c_str());			
+		//outputFile.open(file.c_str(), fstream::in | fstream::out | fstream::trunc);
+		
+        if(!outputFile)
+		{
+
+			cerr<<"You're fucked"<<endl;
+			
+		}
+		// temporary table object
         Table tempTable = _dbTables[tblIndex];
         vector<Attribute> tblAttributes = tempTable.getTblAttributes();
         // Checking for "|" 
@@ -128,12 +145,14 @@ void Database::writeTable(string tableName)
 				attrName.insert(0, "*");
 			
             string printVal = attrName + "[" + tblAttributes[i].getType() + "]";
+			cerr<<"|"<<printVal<<"|";
             outputFile << "|" << printVal << "|";
         } 
         vector<Record> tblRecords = tempTable.getTblRecords();
         for(int i = 0; i < tblRecords.size(); i++)
         {
             outputFile << endl;
+			cerr<<endl;
             vector<string> currRecord = tblRecords[i].getRecord();
             for(int j = 0; j < currRecord.size(); j++)
             {   
@@ -143,10 +162,12 @@ void Database::writeTable(string tableName)
                     recordStr.insert(pos, "\\");
                     
                 outputFile << "|" << recordStr << "|";
+				cerr<< "|" << recordStr << "|";
             } 
         }
     } 
     outputFile.close();
+	cerr<<"If it isn't there I just don't know"<<endl;
 }
 /****
 		The show() function prints out a formatted table. Through for loops, 
@@ -243,6 +264,7 @@ void Database::createTable(string tableName, vector<string> attributeList, vecto
         // create the table
         vector<Record> empty; 
         Table newTable(tableName, attributes, empty);
+		//cout<<"Inserting new table tableName"<<endl;
         _dbTables.push_back(newTable);
     }
     else{

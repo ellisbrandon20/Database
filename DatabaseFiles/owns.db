@@ -1,0 +1,2 @@
+|*customerName[VARCHAR(20)]||*dateOfPurchase[INTEGER]||amountOwed[INTEGER]||color[VARCHAR(20)]||year[INTEGER]||model[VARCHAR(20)]||make[VARCHAR(20)]|
+|ja||020202303 ||020202303 44 ||2303 4||45454 ||54 "as||asinfa|

@@ -89,6 +89,8 @@ void Parser::parse(string input)
 	}
 	if(!commandAlreadyProcessed && semiTerminated)
 	{
+		/*for(int x =0; x<tokens.size(); x++)
+			cout<<tokens[x]<<endl;*/
 		parenthesisCount = 0;
 		tokenIndex = 2;
 		if(showCommand)
@@ -668,6 +670,7 @@ string Parser::parseRelationName()
 ****/
 void Parser::parseCreate()
 {
+	//cout<<"called parseCreate"<<endl;
 	vector<string> attributeList;
 	vector<string> keys;
 	string tblName;
@@ -737,6 +740,11 @@ void Parser::parseCreate()
 			type = "";
 		}
 	}
+	/*cout<<"Creating table: "<<tblName<<endl;
+	for(int x =0; x<attributeList.size(); x++)
+		cout<<attributeList[x]<<endl;
+	for(int y=0; y<keys.size(); y++)
+		cout<<keys[y]<<endl;*/
 	db.createTable(tblName, attributeList, keys);
 }
 /****
@@ -876,11 +884,13 @@ bool Parser::isReserveWord(string reserveWord)
 	}
 	else if(reserveWord == "WRITE")
 	{
+		cerr<<"Writing"<<endl;
 		commandAlreadyProcessed = true;
 		db.writeTable(parseRelationName());
 	}
 	else if(reserveWord == "EXIT")
 	{
+		cerr<<"Exiting"<<endl;
 		commandAlreadyProcessed = true;
 		exit = true;
 		db.exit();
@@ -891,6 +901,7 @@ bool Parser::isReserveWord(string reserveWord)
 	}
 	else if(reserveWord == "CREATETABLE")
 	{ 
+		//cout<<"calling parseCreate()"<<endl;
 		commandAlreadyProcessed = true;
 		parseCreate();
 	}
