@@ -93,19 +93,25 @@ void searchForSale()
 	string customer;
 	string s;
 	cout<<"Looking up a sale"<<endl;
-	cout<<"Please enter the order ID if you know it or 0 if you do not"<<endl;
+	cout<<"Please enter the order ID if you know it or -1 if you do not"<<endl;
 	cin>>orderID;
+	cout<<orderID<<endl;
 	if(orderID == "-1")
+	{
 		cout<<"Please enter the customer name"<<endl;
 		cin>>customer;
 		cout<<"Displaying all purchases made by this customer"<<endl;
-		s = "SHOW select (name==\""+ customer +"\") sales;\n";
-		cout<<"Please enter the orderID of the desired purchase shown above or 0 to exit"<<endl;
+		s = "SHOW a <- select (customerName==\""+ customer +"\") sales;\n";
+		cout<<s<<endl;
+		writePipe(s);
+		cout<<readPipe()<<endl;
+		cout<<"Please enter the orderID of the desired purchase shown above or -1 to exit"<<endl;
 		cin>>orderID;
 		if(orderID!="-1")
-			s = "SHOW select (orderID=="+ orderID +") sales;\n";
+			s = "SHOW a <- select (orderID=="+ orderID +") sales;\n";
+	}
 	else
-		s = "SHOW select (orderID=="+ orderID +") sales;\n";
+		s = "SHOW a <- select (orderID=="+ orderID +") sales;\n";
 	writePipe(s);
 	cout<<readPipe();
 }
@@ -152,7 +158,7 @@ void search()
 				cout<<"Enter the name you would like to search for"<<endl;
 				cin>>employee;
 				if(subSearch ==1)
-					s = "SHOW (select (name == \""+employee+"\") sales);\n";
+					s = "SHOW a <- select (name == \""+employee+"\") sales;\n";
 			}
 			else if(subSearch == 2)
 			{
@@ -171,7 +177,7 @@ void search()
 			{
 				cout<<"Enter the ID you would like to search for"<<endl;
 				cin>>orderID;
-				s = "SHOW (select (orderID == \""+orderID+"\") sales);\n";
+				s = "SHOW a <- select (orderID=="+ orderID +") sales;\n";
 			}
 			else if(subSearch == 2)
 			{
@@ -180,11 +186,11 @@ void search()
 				cout<<"Search for Financing Rates higher(>), lower(<), or equal to (=) entered rate"<<endl;
 				cin>>op;
 				if(op == '=')
-					s = "SHOW a <- select (financingRate == \""+financingRate+"\") sales;\n";
+					s = "SHOW a <- select (financingRate == "+financingRate+") sales;\n";
 				else if(op == '>')
-					s = "SHOW a <- select (financingRate > \""+financingRate+"\") sales;\n";
+					s = "SHOW a <- select (financingRate > "+financingRate+") sales;\n";
 				else if(op == '<')
-					s = "SHOW a <- select (financingRate < \""+financingRate+"\") sales;\n";
+					s = "SHOW a <- select (financingRate < "+financingRate+") sales;\n";
 				else
 					cout<<"Did not enter =,>,or < returning to main menu"<<endl;
 			}
@@ -195,11 +201,11 @@ void search()
 				cout<<"Search for financing rates higher(>), lower(<), or equal to (=) entered rate"<<endl;
 				cin>>op;
 				if(op == '=')
-					s = "SHOW (select (cost == \""+cost+"\") sales);\n";
+					s = "SHOW a <- select (cost == "+cost+") sales;\n";
 				else if(op == '>')
-					s = "SHOW (select (cost > \""+cost+"\") sales);\n";
+					s = "SHOW a <- select (cost > "+cost+") sales;\n";
 				else if(op == '<')
-					s = "SHOW (select (cost < \""+cost+"\") sales);\n";
+					s = "SHOW a <- select (cost < "+cost+") sales;\n";
 				else
 					cout<<"Did not enter =,>,or < returning to main menu"<<endl;
 			}
@@ -215,7 +221,7 @@ void search()
 				cout<<"Enter the name you would like to search for"<<endl;
 				cout<<endl;
 				cin>>customer;
-				s = "SHOW (select (name == \""+customer+"\") sales);\n";
+				s = "SHOW a <- select (name == \""+customer+"\") sales;\n";
 			}
 			else if(subSearch == 2)
 			{
@@ -228,12 +234,12 @@ void search()
 				cin>>rangeOfDates;
 				if(rangeOfDates == "on")
 				{
-					s = "SHOW (select (dateOfPurchase == \""+dateOfPurchase+"\") sales);\n";
+					s = "SHOW a <- select (dateOfPurchase == "+dateOfPurchase+") sales;\n";
 				}
 				else if(rangeOfDates == "after")
-					s = "SHOW (select (dateOfPurchase < \""+dateOfPurchase+"\") sales);\n";
+					s = "SHOW a <- select (dateOfPurchase < "+dateOfPurchase+") sales;\n";
 				else if(rangeOfDates == "before")
-					s = "SHOW (select (dateOfPurchase > \""+dateOfPurchase+"\") sales);\n";
+					s = "SHOW a <- select (dateOfPurchase > "+dateOfPurchase+") sales;\n";
 				else
 					cout<<"Did not enter 'on', 'before', or 'after' returning to main menu"<<endl;
 			}
@@ -244,11 +250,11 @@ void search()
 				cout<<"Search for amounts owed higher(>), lower(<), or equal to (=) entered rate"<<endl;
 				cin>>op;
 				if(op == '=')
-					s = "SHOW (select (amoutOwed == \""+amountOwed+"\") sales);\n";
+					s = "SHOW a <- select (amoutOwed == "+amountOwed+") sales;\n";
 				else if(op == '>')
-					s = "SHOW (select (amountOwed > \""+amountOwed+"\") sales);\n";
+					s = "SHOW a <- select (amountOwed > "+amountOwed+") sales;\n";
 				else if(op == '<')
-					s = "SHOW (select (amountOwed < \""+amountOwed+"\") sales);\n";
+					s = "SHOW a <- select (amountOwed < "+amountOwed+") sales;\n";
 				else
 					cout<<"Did not enter =,>,or < returning to main menu"<<endl;
 			}
@@ -263,7 +269,7 @@ void search()
 			{
 				cout<<"Enter the color you are looking for"<<endl;
 				cin>>color;
-				s = "SHOW (select (color == \""+color+"\") sales);\n";
+				s = "SHOW a <- select (color == \""+color+"\") sales;\n";
 			}
 			else if(subSearch == 2)
 			{
@@ -273,12 +279,12 @@ void search()
 				cin>>rangeOfDates;
 				if(rangeOfDates == "on")
 				{
-					s = "SHOW (select (year == \""+year+"\") sales);\n";
+					s = "SHOW a <- select (year == "+year+") sales;\n";
 				}
 				else if(rangeOfDates == "after")
-					s = "SHOW (select (year < \""+year+"\") sales);\n";
+					s = "SHOW a <- select (year < "+year+") sales;\n";
 				else if(rangeOfDates == "before")
-					s = "SHOW (select (year > \""+year+"\") sales);\n";
+					s = "SHOW a <- select (year > "+year+") sales;\n";
 				else
 					cout<<"Did not enter 'on', 'before', or 'after' returning to main menu"<<endl;
 			}
@@ -286,27 +292,20 @@ void search()
 			{
 				cout<<"Enter the Model you are looking for"<<endl;
 				cin>>model;
-				s = "SHOW (select (model == \""+model+"\") sales);\n";
+				s = "SHOW a <- select (model == \""+model+"\") sales;\n";
 			}
 			else if(subSearch == 4)
 			{
 				cout<<"Enter the Make you are looking for"<<endl;
 				cin>>make;
-				s = "SHOW (select (make == \""+make+"\") sales);\n";
+				s = "SHOW a <- select (make == \""+make+"\") sales;\n";
 			}
 			else
 				cout<<"Did not enter a '1', '2', '3', or '4' returning to main menu"<<endl;
 		break;
 	}
-	write( fileDescriptor_ParentToChild[1], s.c_str(), strlen(s.c_str()));
-	cout<<"Sending Request"<<endl;
-	usleep(1000);
-	bytes_read = read(fileDescriptor_ChildToParent[0], readbuffer, sizeof(readbuffer)-1);
-	readbuffer[bytes_read] = '\0';
-	receive_output += readbuffer;
-	cout<<endl;
-	cout<<receive_output<<endl;
-	cout<<endl;
+	writePipe(s);
+	cout<<readPipe();
 }
 void show()
 {
