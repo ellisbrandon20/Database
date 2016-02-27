@@ -10,7 +10,7 @@ void Parser::parse(string input)
 {
 	tokens.clear();
 	if(input.size()>0)
-	cout << "input: " << input << endl;
+	//cout << "input: " << input << endl;
 	cerr << "input: " << input << endl;
 	string reserveWord;
 	storedInput = input;	
@@ -89,8 +89,6 @@ void Parser::parse(string input)
 	}
 	if(!commandAlreadyProcessed && semiTerminated)
 	{
-		/*for(int x =0; x<tokens.size(); x++)
-			cout<<tokens[x]<<endl;*/
 		parenthesisCount = 0;
 		tokenIndex = 2;
 		if(showCommand)
@@ -670,7 +668,6 @@ string Parser::parseRelationName()
 ****/
 void Parser::parseCreate()
 {
-	//cout<<"called parseCreate"<<endl;
 	vector<string> attributeList;
 	vector<string> keys;
 	string tblName;
@@ -740,11 +737,6 @@ void Parser::parseCreate()
 			type = "";
 		}
 	}
-	/*cout<<"Creating table: "<<tblName<<endl;
-	for(int x =0; x<attributeList.size(); x++)
-		cout<<attributeList[x]<<endl;
-	for(int y=0; y<keys.size(); y++)
-		cout<<keys[y]<<endl;*/
 	db.createTable(tblName, attributeList, keys);
 }
 /****
@@ -806,6 +798,7 @@ string Parser::readIdentifier()
 ****/
 vector<string> Parser::parseArgs()
 {
+	cerr<<"Even here"<<endl;
 	vector<string> args;
 	int start = -1;
 	int end = -1;
@@ -854,6 +847,7 @@ vector<string> Parser::parseArgs()
 				++position;
 			}
 			args.push_back(currentArg);
+			currentArg = "";
 		}
 		else
 		{
@@ -862,6 +856,10 @@ vector<string> Parser::parseArgs()
 		}
 	
 	}
+	cerr<<"test"<<endl;
+	for(int x =0; x<args.size(); x++)
+		cerr<<args[x]<<endl;
+	cerr<<"test"<<endl;
 	return args;
 }
 /****
@@ -884,13 +882,11 @@ bool Parser::isReserveWord(string reserveWord)
 	}
 	else if(reserveWord == "WRITE")
 	{
-		cerr<<"Writing"<<endl;
 		commandAlreadyProcessed = true;
 		db.writeTable(parseRelationName());
 	}
 	else if(reserveWord == "EXIT")
 	{
-		cerr<<"Exiting"<<endl;
 		commandAlreadyProcessed = true;
 		exit = true;
 		db.exit();
@@ -901,18 +897,23 @@ bool Parser::isReserveWord(string reserveWord)
 	}
 	else if(reserveWord == "CREATETABLE")
 	{ 
-		//cout<<"calling parseCreate()"<<endl;
 		commandAlreadyProcessed = true;
 		parseCreate();
 	}
 	else if(reserveWord == "INSERTINTO")
 	{ 
+cerr<<"was here"<<endl;
 		storedTable = readIdentifier();
 	}
 	else if(reserveWord == "VALUESFROM")
 	{ 
+		cerr<<"was there"<<endl;
 		commandAlreadyProcessed = true;
 		vector<string> args = parseArgs();
+		cerr<<"test"<<endl;
+		for(int x =0; x<args.size(); x++)
+			cerr<<args[x]<<endl;
+		cerr<<"test"<<endl;
 		db.insertToTable(storedTable, args);
 	}
 	else if(reserveWord == "VALUESFROMRELATION")
