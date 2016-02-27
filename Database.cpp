@@ -1207,7 +1207,7 @@ string Database::projection(string tableName, vector<string> projAttr)
 		}
 		if(attr.size() == 0)
 		{
-			cout << "\nERROR: No attributes matched with the passed names"<<endl;
+			cerr << "\nERROR: No attributes matched with the passed names"<<endl;
 			return "ERROR projection"; // return this as table no table name can have spaces
 		}
 		else

@@ -808,13 +808,15 @@ vector<string> Parser::parseArgs()
 	{
 		if(*position == '"' && start == -1)
 		{
-			start = iter;
+			cerr<<1<<endl;
+			start = 1;
 			++iter;
 			++position;
-			currentArg+='"';
+			currentArg='"';
 		}
 		else if(start != -1 && *position == '"')
 		{
+			cerr<<2<<endl;
 			end = iter;
 			++iter;
 			++position;
@@ -822,17 +824,22 @@ vector<string> Parser::parseArgs()
 		}
 		else if(start!= -1 && *position != ',' && *position!=')' && *position != ';' && *position!=' ')
 		{
-				currentArg+= (*position);
-				++iter;
-				++position;
+			cerr<<3<<endl;
+			currentArg+= (*position);
+			++iter;
+			++position;
 		}
 		else if(start!=-1 && (*position == ',' || *position == ')' || *position ==';'))
 		{
+			cerr<<4<<endl;
+			cerr<<currentArg<<endl;
+			cerr<<start<<" "<<end<<endl;
 			if(start != 0)
-				currentArg = currentArg.substr(start,end-2);	
+				currentArg = currentArg.substr(start,end-1);	
 			else
 				currentArg = currentArg.substr(start,end-1);
-			args.push_back(currentArg);
+			cerr<<">"<<currentArg<<"<"<<endl;
+			args.push_back(currentArg);		
 			currentArg = "";
 			iter = 0;
 			start = -1;
@@ -841,17 +848,23 @@ vector<string> Parser::parseArgs()
 		}
 		else if(isdigit(*position))
 		{
-			while(!(*position == ',' || *position == ')' || *position ==';'))
+			cerr<<5<<endl;
+			while(isdigit(*position))
 			{
 				currentArg += *position;
 				++position;
 			}
+			cerr<<">"<<currentArg<<"<"<<endl;
 			args.push_back(currentArg);
+			iter = 0;
 			currentArg = "";
+			start = -1;
+			end = -1;
 		}
 		else
 		{
-			++iter;
+			cerr<<6<<endl;
+			//++iter;
 			++position;
 		}
 	
@@ -902,7 +915,7 @@ bool Parser::isReserveWord(string reserveWord)
 	}
 	else if(reserveWord == "INSERTINTO")
 	{ 
-cerr<<"was here"<<endl;
+		cerr<<"was here"<<endl;
 		storedTable = readIdentifier();
 	}
 	else if(reserveWord == "VALUESFROM")
