@@ -114,6 +114,7 @@ void Parser::parse(string input)
 				newTblName = db.setDifference(storedTable, newTblName);
 				db.dropTable(storedTable);
 				db.getTableByName(newTblName)->changeTableName(storedTable);
+				db.getTableByName(storedTable)->setQuery(false);
 			}
 			else if(update)
 			{
@@ -129,11 +130,13 @@ void Parser::parse(string input)
 				newTblName = db.updateTable(combine, newTblName, attr, lit);
 				db.dropTable(storedTable);
 				db.getTableByName(newTblName)->changeTableName(storedTable);
+				db.getTableByName(storedTable)->setQuery(false);
 			
 			}
 			else if(tokens[3] == ";")
 			{
 				db.getTableByName(tokens[2])->changeTableName(tokens[0]);
+				
 			}
 			else
 			{

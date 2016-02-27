@@ -39,6 +39,8 @@ public:
 	void updateRecord(vector<int> &updateIndeces, vector<string> &attrNames, vector<string> &literals);
 	void updateSpecific(int recIndex, int attIndex, string literal) {_records[recIndex].updateRecord(attIndex, literal);}
 	void copyRecord(int recIndex, Record rec) {_records[recIndex] = rec;}
+	void setQuery(bool query) {_query = query;}
+	
     //helper funcions
 	string addNewRecord(Record newRecord);
 	
