@@ -1,0 +1,10 @@
+OPEN sales;
+OPEN owns;
+
+
+SHOW sales;
+SHOW owns;
+
+
+
+EXIT;
