@@ -1,10 +1,2 @@
 |*customerName[VARCHAR(20)]||*dateOfPurchase[INTEGER]||amountOwed[INTEGER]||color[VARCHAR(20)]||year[INTEGER]||model[VARCHAR(20)]||make[VARCHAR(20)]|
-|ja||020202303 ||020202303 44 ||2303 4||45454 ||54 "as||asinfa|
-|nanananana||01010001 ||84000 ||||9090 ||gerdodger"||mobile|
-|nofun||0303030303||555555||dfed"||88888||ygb"||njuh|
-|"bin||01010101||54321||"re||9898||"nitwi||"hund|
-|"rong||0987654||5454||"indifo"||8432||"junto"||"inij|
-|nyami||9875||87000||grondle"||878||minst"||nubian|
-|zxc||5634||45||asdfew||2354||vzc||qwe|
-|jon||01010001||54||re||5885||nomygoaw||nintr|
-|listene||101010001||5555||orang||7676||ronm||nints|
+|DaffyDuck||12192015||500000||orange||1998||Bronco||Ford|

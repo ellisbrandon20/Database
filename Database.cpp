@@ -103,13 +103,6 @@ void Database::closeTable(string tableName)
 ****/
 void Database::writeTable(string tableName)
 {
-	cerr<<"SHould be writing"<<endl;
-	//ofstream outputFile(DBFILEPATH+tableName + ".db", ios::out);
-	
-	//if(!outputFile)
-	//{
-	//	cout << "The terrorists won...." << endl;
-	//}
 	ofstream outputFile(DBFILEPATH+tableName + ".db");
 	
     int tblIndex = getTableIndex(_dbTables, tableName);   
@@ -120,14 +113,10 @@ void Database::writeTable(string tableName)
     else
     {
 		string file = DBFILEPATH + tableName + ".db";
-		cerr<<file<<endl;
-		//outputFile.open(file.c_str());			
-		//outputFile.open(file.c_str(), fstream::in | fstream::out | fstream::trunc);
-		
         if(!outputFile)
 		{
 
-			cerr<<"You're fucked"<<endl;
+			cerr<<"Problem creating file"<<endl;
 			
 		}
 		// temporary table object
@@ -145,14 +134,12 @@ void Database::writeTable(string tableName)
 				attrName.insert(0, "*");
 			
             string printVal = attrName + "[" + tblAttributes[i].getType() + "]";
-			cerr<<"|"<<printVal<<"|";
             outputFile << "|" << printVal << "|";
         } 
         vector<Record> tblRecords = tempTable.getTblRecords();
         for(int i = 0; i < tblRecords.size(); i++)
         {
             outputFile << endl;
-			cerr<<endl;
             vector<string> currRecord = tblRecords[i].getRecord();
             for(int j = 0; j < currRecord.size(); j++)
             {   
@@ -162,12 +149,10 @@ void Database::writeTable(string tableName)
                     recordStr.insert(pos, "\\");
                     
                 outputFile << "|" << recordStr << "|";
-				cerr<< "|" << recordStr << "|";
             } 
         }
     } 
     outputFile.close();
-	cerr<<"If it isn't there I just don't know"<<endl;
 }
 /****
 		The show() function prints out a formatted table. Through for loops, 
@@ -202,7 +187,7 @@ void Database::show(string tableName)
 			if(tblAttributes[i].getKey())
 				attributeName.insert(0,"*");
             string attribute = attributeName + "[" + attributeType + "]";
-            cout << setw(20) << left << attribute;
+            cout << setw(25) << left << attribute;
         }
         cout << '\n';     
         // print the records values
@@ -211,7 +196,7 @@ void Database::show(string tableName)
         {
             vector<string> currRecord = tblRecords[i].getRecord(); 
             for(int j = 0; j < currRecord.size(); j++)
-                cout << setw(20) << left << currRecord[j];
+                cout << setw(25) << left << currRecord[j];
             cout << '\n';
         }
     }

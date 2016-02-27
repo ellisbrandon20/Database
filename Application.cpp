@@ -25,12 +25,13 @@ string readPipe()
 	usleep(1000);
 	bytes_read = 0;
 	bool stop = false;
-	while(bytes_read != 0 && !stop)
+	while(!stop)
 	{
 		bytes_read = read(fileDescriptor_ChildToParent[0], readbuffer, sizeof(readbuffer)-1);
 		readbuffer[bytes_read] = '\0';
 		receive_output += readbuffer;//Opened file
-		if(bytes_read == 0)
+		cout<<bytes_read<<endl;
+		if(bytes_read <250)
 			stop = true;
 	}
 	return receive_output;
@@ -43,7 +44,8 @@ void guarunteedOpen()
 {
 	string s = "OPEN sales;\n";
 	writePipe(s);
-	if(readPipe().substr(0,3)== "OPEN")
+	readPipe();
+	if(readPipe().substr(0,11)== "OPEN sales;")
 	{
 		cout<<"Sales records successfully opened"<<endl;
 	}
@@ -60,7 +62,8 @@ void guarunteedOpen()
 	}
 	s = "OPEN owns;\n";
 	writePipe(s);
-	if(readPipe().substr(0,3)== "OPEN")
+	//readPipe();
+	if(readPipe().substr(0,11)== "OPEN owns;")
 	{
 		cout<<"Owns records successfully opened"<<endl;
 	}
@@ -92,17 +95,19 @@ void searchForSale()
 	cout<<"Looking up a sale"<<endl;
 	cout<<"Please enter the order ID if you know it or 0 if you do not"<<endl;
 	cin>>orderID;
-	if(orderID == "0")
+	if(orderID == "-1")
 		cout<<"Please enter the customer name"<<endl;
 		cin>>customer;
 		cout<<"Displaying all purchases made by this customer"<<endl;
 		s = "SHOW select (name==\""+ customer +"\") sales;\n";
 		cout<<"Please enter the orderID of the desired purchase shown above or 0 to exit"<<endl;
 		cin>>orderID;
-		if(orderID!="0")
+		if(orderID!="-1")
 			s = "SHOW select (orderID=="+ orderID +") sales;\n";
 	else
 		s = "SHOW select (orderID=="+ orderID +") sales;\n";
+	writePipe(s);
+	cout<<readPipe();
 }
 void search()
 {
@@ -153,7 +158,7 @@ void search()
 			{
 				cout<<"Enter the ID you would like to search for"<<endl;
 				cin>>employeeID;
-				s = "SHOW (select (employeeID == \""+employeeID+"\") sales);\n";
+				s = "SHOW a <- select employeeID == \""+employeeID+"\") sales;\n";
 			}
 			else
 				cout<<"Not '1' or '2' returning to main menu"<<endl;
@@ -175,11 +180,11 @@ void search()
 				cout<<"Search for Financing Rates higher(>), lower(<), or equal to (=) entered rate"<<endl;
 				cin>>op;
 				if(op == '=')
-					s = "SHOW (select (financingRate == \""+financingRate+"\") sales);\n";
+					s = "SHOW a <- select (financingRate == \""+financingRate+"\") sales;\n";
 				else if(op == '>')
-					s = "SHOW (select (financingRate > \""+financingRate+"\") sales);\n";
+					s = "SHOW a <- select (financingRate > \""+financingRate+"\") sales;\n";
 				else if(op == '<')
-					s = "SHOW (select (financingRate < \""+financingRate+"\") sales);\n";
+					s = "SHOW a <- select (financingRate < \""+financingRate+"\") sales;\n";
 				else
 					cout<<"Did not enter =,>,or < returning to main menu"<<endl;
 			}
@@ -447,6 +452,7 @@ void createSale()
 }
 int main()
 {	
+	readbuffer[255] = ' ';
 	pipe(fileDescriptor_ParentToChild);//create pipe-to-child
 	pipe(fileDescriptor_ChildToParent);//create pipe-from-child
 	int childPID = fork();
