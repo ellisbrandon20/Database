@@ -1,2 +1,7 @@
-|employeeName[VARCHAR(20)]||employeeID[INTEGER]||*orderID[INTEGER]||financingRate[INTEGER]||isPending[INTEGER]||cost[INTEGER]||customerName[VARCHAR(20)]||dateOfPurchase[INTEGER]||amountOwed[INTEGER]|
-|RogerRabbit||1033||0||25||0||500000||DaffyDuck||12192015||500000|
+|employeeName[VARCHAR(20)]||employeeID[INTEGER]||*orderID[INTEGER]||financingRate[VARCHAR(20)]||cost[INTEGER]||isPending[INTEGER]||customerName[VARCHAR(20)]||dateOfPurchase[INTEGER]||amountOwed[INTEGER]|
+|bob||01||1001||9||50000||0||Fred||01052010||500000|
+|bob||01||1002||9||300||0||Paatrick||01052015||50000|
+|bob||01||1003||9||400||0||SpongeBob||01062010||300|
+|Jill||02||1004||9||500000||0||DaffyDuck||12192015||400|
+|Jill||02||1005||9||100||0||def||02252016||100|
+|Jill||02||1006||9||100||0||custName||01011001||8675209|

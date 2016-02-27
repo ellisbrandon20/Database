@@ -13,16 +13,16 @@
 
 using namespace std;
 
-int bytes_read;
-string receive_output;
+
 int fileDescriptor_ParentToChild[2];
 int fileDescriptor_ChildToParent[2];
-char readbuffer[255];
-int orderID = 0;
 
 string readPipe()
 {
-	usleep(1000);
+	int bytes_read;
+	string receive_output;
+	char readbuffer[255] = "";
+	usleep(9000);
 	bytes_read = 0;
 	bool stop = false;
 	while(!stop)
@@ -44,7 +44,6 @@ void guarunteedOpen()
 {
 	string s = "OPEN sales;\n";
 	writePipe(s);
-	readPipe();
 	if(readPipe().substr(0,11)== "OPEN sales;")
 	{
 		cout<<"Sales records successfully opened"<<endl;
@@ -62,8 +61,7 @@ void guarunteedOpen()
 	}
 	s = "OPEN owns;\n";
 	writePipe(s);
-	//readPipe();
-	if(readPipe().substr(0,11)== "OPEN owns;")
+	if(readPipe().substr(0,11)== "Opened file")
 	{
 		cout<<"Owns records successfully opened"<<endl;
 	}
@@ -77,7 +75,9 @@ void guarunteedOpen()
 		s = "OPEN owns;\n";
 		writePipe(s);
 		cout<<readPipe();
-	}	
+	}
+	cout<<endl;
+	cout<<endl;
 }
 bool isNumber(string& input)
 {
@@ -309,9 +309,24 @@ void search()
 }
 void show()
 {
-	string s = "SHOW sales;\n";
-	writePipe(s);
-	cout<<readPipe();
+	int choice = 0;
+	cout<<"Show Sales(1), Owns(2), or both(3)?"<<endl;
+	cin>>choice;
+	if(choice == 1 || choice == 3)
+	{
+		string s = "SHOW sales;\n";
+		writePipe(s);
+		cout<<readPipe();
+		cout<<endl;
+	}
+	if(choice == 2 || choice == 3)
+	{
+		string s = "SHOW owns;\n";
+		writePipe(s);
+		cout<<readPipe();
+	}
+	cout<<endl;
+	cout<<endl;
 }
 void writeTable()
 {
@@ -321,17 +336,20 @@ void writeTable()
 void open()
 {
 	string s = "OPEN animals;\n";
-	write( fileDescriptor_ParentToChild[1], s.c_str(), strlen(s.c_str()));
+	writePipe(s);
+	cout<<readPipe();
+	/*write( fileDescriptor_ParentToChild[1], s.c_str(), strlen(s.c_str()));
 	cout<<"Looping1"<<endl;
 	usleep(1000);
 	bytes_read = read(fileDescriptor_ChildToParent[0], readbuffer, sizeof(readbuffer)-1);
 	readbuffer[bytes_read] = '\0';
 	receive_output += readbuffer;
-	cout<<receive_output<<endl;
+	cout<<receive_output<<endl;*/
 }
 void createSale()
 {
 	string customerName,
+		   orderID,
 		   car,
 		   cost,
 		   financingRate,
@@ -352,67 +370,27 @@ void createSale()
 	cout<<"Making a sale"<<endl;
 	cout<<"Enter name of Employee making the sale"<<endl;
 	cin>>employeeName;
+	cout<<"Enter orderID"<<endl;
+	cin>>orderID;
 	cout<<"Enter EmployeeID of Employee making the sale"<<endl;
 	cin>>employeeID;
-	/*string write;
-	for(int i =0; i<employee.size(); i++)
-	{
-		if(employee[i] == ' ' && write.size()>1)
-		{
-			employeeData.push_back(write);
-			write = "";
-		}
-		else if(employee[i] != ' ')
-		{
-			write+= employee[i];
-			if(i == employee.size()-1)
-				employeeData.push_back(write);
-		}
-	}	*/
 	cout<<"Enter customer name"<<endl;
 	cin>>customerName;
-	/*cout<<"Enter the Year, Make, and Model (ex. '2007 Toyota Camry')";
-	cin>>car;
-	write = "";
-	for(int x =0; x<car.size(); x++)
-	{
-		if(car[x] == ' ' && write.size()>1)
-		{
-			carData.push_back(write);
-			write = "";
-		}
-		else if(car[x] != ' ')
-		{
-			write+= car[x];
-			if(x == car.size()-1)
-				carData.push_back(write);
-		}
-	}
-	cout<<"Please Enter the color of the car"<<endl;
-	cin>>color;*/
 	cout<<"Please Enter the Cost of this transaction"<<endl;
 	cin>>cost;
 	cout<<"Please Enter the Financing Rate of this transaction"<<endl;
 	cin>>financingRate;
-	/*write = "";
-	for(int y =0; y<car.size(); y++)
-	{
-		if(finances[y] == ' ' && write.size()>1)
-		{
-			financeData.push_back(write);
-			write = "";
-		}
-		else if(finances[y] != ' ')
-		{
-			write+= finances[y];
-			if(y == finances.size()-1)
-				financeData.push_back(write);
-		}
-	}*/
 	cout<<"Did this transaction occur today(y/n)?"<<endl;
 	cin>>today;
 	if(today == 'y')
+	{
+		time_t t = time(0);   // get time now
+		struct tm * now = localtime( & t );
+        todaysDate += to_string(now->tm_mon + 1);
+        todaysDate += to_string(now->tm_mday);
+		todaysDate += to_string(now->tm_year + 1900);
 		dateOfPurchase = todaysDate;
+	}
 	else
 	{
 		cout<<"Please enter the date the transaction occurec in month/day/year format (ex. 01/23/2016)"<<endl;
@@ -429,7 +407,7 @@ void createSale()
 		orderStatus = "1";
 	else
 		orderStatus = "0";
-	string fullSale = " (\""+employeeName+"\" , "+employeeID+" , "+to_string(orderID)+" , "+financingRate+" , "+orderStatus+" , "+cost+" ,\""+customerName+"\" ,"+dateOfPurchase+" , "+cost+");\n";
+	string fullSale = " (\""+employeeName+"\" , "+employeeID+" , "+orderID+" , "+financingRate+" , "+cost+" , "+orderStatus+" , \""+customerName+"\" ,"+dateOfPurchase+" , "+cost+");\n";
 	cout<<fullSale<<endl;
 	cout<<fullSale.size()<<endl;
 	cout<<"What color is the car?"<<endl;
@@ -441,17 +419,408 @@ void createSale()
 	cout<<"What model is it?"<<endl;
 	cin>>model;
 	string ownsConstruct = " (\""+customerName+"\" , "+dateOfPurchase+" , "+cost+" , \""+color+"\" , "+year+" , \""+model+"\" , \""+make+"\");\n";
-	orderID++;
+	//orderID++;
 	string s = "INSERT INTO sales VALUES FROM"+fullSale;
+	cout<<ownsConstruct<<endl;
 	writePipe(s);
 	s = "INSERT INTO owns VALUES FROM"+ownsConstruct;
 	writePipe(s);
 	//cout<<readPipe();
 	cout<<"The sale has been entered in the database successfully"<<endl;
 }
+string removeSale()
+{
+	cout << "\n\n";
+	cout << " ---- Remove a pending Sale ---- " << endl;
+	cout << "What do you want to delete by?" << endl;
+	cout << "1. Order ID" << endl;
+	cout << "2. Employee" << endl;
+	cout << "3. Customer" << endl;
+	cout << "4. Model" << endl;
+	cout << ">";
+	int deleteCommand;
+	cin >> deleteCommand;
+	
+	string sql = "";
+	string orderID = "";
+	string orderOP = "";
+	string employeeID = "";
+	string employeeIDop = "";
+	string customerOP = "";
+	string customer = "";
+	string model = "";
+	string modelOP = "";
+	//string require = ""; // if == "yes" place "&&" in the sql otherwise place "||" in sql
+	//string require2 = ""; // if == "yes" place "&&" in the sql otherwise place "||" in sql
+	
+	switch(deleteCommand)
+	{
+		case 1:
+			//Order ID
+			cout << "\nWhat is the Order ID number?" << endl;
+			cout << ">";
+			
+			cin >> orderID;
+
+			cout << "\nAre you looking for Order ID eqaul to(=) or not eqaul(!=) to?" << endl;
+
+			cout << ">";
+			cin >> orderOP;
+			
+			if(!isNumber(orderID)) return "ERROR";
+			
+			if (orderOP == "=")
+				sql = "(DELETE FROM sales WHERE (orderID == " + orderID + ")";
+			else
+				sql = "(DELETE FROM sales WHERE (orderID != " + orderID + ")";
+
+			break;
+		case 2:
+			//Employee ID
+			cout <<"\nWhat is the Employee ID?" << endl;
+			cout << ">";
+			cin >> employeeID;
+			if(!isNumber(employeeID)) return "ERROR";
+			
+			//find op
+			cout << "Are you deleting records that are eqaul (=) to or not equal (!=) to Employee ID?"
+				 << endl;
+			cout << ">";
+			cin >> employeeIDop;
+			
+			if(employeeIDop == "=")
+				sql = "DELETE FROM sales WHERE (employeeID == " + employeeID + ")";
+			else
+				sql = "DELETE FROM sales WHERE (employeeID != " + employeeID + ")";
+			
+			break;
+		case 3:
+			//Customer
+			cout <<"\nWhat is the Customer's name?" << endl;
+			cout << ">";
+			cin >> customer;
+			
+			//find op
+			cout << "Are you deleting records that are eqaul (=) to or not equal (!=) to Customer name?"
+				 << endl;
+			cout << ">";
+			cin >> customerOP;
+			
+			if(customerOP == "=")
+				sql = "DELETE FROM sales WHERE (customerName == " + customer + ")";
+			else
+				sql = "DELETE FROM sales WHERE (customerName != " + customer + ")";
+
+			break;
+		case 4:
+			//Model
+			cout <<"\nWhat is the Model name of the car?" << endl;
+			cout << ">";
+			cin >> model;
+			
+			//find op
+			cout << "Are you deleting records that are eqaul (=) to or not equal (!=) to Model name"
+				 << endl;
+			cout << ">";
+			cin >> modelOP;
+			
+			if(modelOP == "=")
+				sql = "DELETE FROM sales WHERE (model == " + model + ")";
+			else
+				sql = "DELETE FROM sales WHERE (model != " + model + ")";
+	
+			break;
+		default:
+			break;
+			
+	}
+	string sqltosend = sql + ";\n";
+	writePipe(sql);
+}
+string employeeStatsAttribute(char attribute)
+{
+	//cout << "attr # " << attribute << endl;
+	if (attribute == '0')
+		return "orderID";
+	else if (attribute == '1')
+		return "employeeName";
+	else if (attribute == '2')
+		return "customerName";
+	else if (attribute == '3')
+		return "make";
+	else if (attribute == '4')
+		return "model";
+	else if (attribute == '5')
+		return "cost";
+	else if (attribute == '6')
+		return "dateOfPurchase";
+	else if (attribute == '7')
+		return "financingRate";
+	else	
+		return "ERROR";
+}
+void employeeStats()
+{
+	cout << "\n\n";
+	cout << " ---- View Employee Stats ---- " << endl;
+	
+	cout << "\nDo you want to search by Employee ..." << endl;
+	cout << "1. ID" << endl;
+	cout << "2. Name" << endl;
+	string search;
+	cout << ">";
+	cin >> search;
+	
+	string joinedTBL;
+	string selectJoinedTBL;
+	if(search == "1")
+	{
+		cout << "\nPlease enter the Employee's ID" << endl;
+		cout << ">";
+		string employeeID;
+		cin >> employeeID;
+		if(!isNumber(employeeID)) 
+			cerr<<"ERROR"<<endl;
+		
+		joinedTBL = "(sales JOIN owns)";
+		selectJoinedTBL = "(select (employeeID == " + employeeID 
+								+ ") " + joinedTBL + ")";
+	}
+	else if (search == "2")
+	{
+		cout << "\nPlease enter the Employee's Name" << endl;
+		cout << ">";
+		string employeeName;
+		cin >> employeeName;
+		
+		joinedTBL = "(sales JOIN owns)";
+		selectJoinedTBL = "(select (employeeName == \"" + employeeName 
+								+ "\") " + joinedTBL + ")";
+	}
+	else
+	{
+		cout << "Sorry you did not enter valid input we were looking for \"1\" or \"2\"" << endl;
+		//return "ERROR";
+	}
+		//find out what the user wants to project
+		vector<string> VECattributes;
+		VECattributes.push_back("0. Order ID");
+		VECattributes.push_back("1. Employee Name");
+		VECattributes.push_back("2. Customer Name");
+		VECattributes.push_back("3. Make of Car");
+		VECattributes.push_back("4. Model of Car");
+		VECattributes.push_back("5. Cost of Car");
+		VECattributes.push_back("6. Date of Purchase");
+		VECattributes.push_back("7. Financing Rate");
+		
+		
+		cout << "\nWhat items would you like to look at about this employee?" << endl;
+		for(int i = 0; i < VECattributes.size(); i++)
+			cout << VECattributes[i] << endl;
+		
+		cout << "\nPlease enter one number at a time followed by a space then hit enter." << endl;
+		cout << "Example input: 7 5 4 0" << endl;
+		cout << ">";
+		string attribute;
+		vector<string> projectAttributes; // attributes to be projected
+		cin.ignore();
+		getline(cin, attribute);
+		string::iterator iter = attribute.begin();
+		bool flag = false;
+		while(iter != attribute.end())
+		{
+			if(*iter == ' '){
+				iter++;
+				continue;
+			}
+			if(*iter != '0' && *iter != '1' && *iter != '2' && *iter != '3' && *iter != '4'
+				&& *iter != '5' && *iter != '6' && *iter != '7')
+			{	
+				flag = true;
+				break;
+			}
+			string pushAttribute = employeeStatsAttribute(*iter);
+			projectAttributes.push_back(pushAttribute);
+			++iter;
+		}
+
+		
+		//============================
+		string listAttributes = "(";
+		for(int j = 0; j < projectAttributes.size(); j++)
+		{
+			listAttributes += projectAttributes[j];
+			if(j<projectAttributes.size()-1)
+				listAttributes += ",";
+		}
+		listAttributes += ")";
+		
+		
+		//cout << "::" << selectJoinedTBL << endl;
+		//cout << "SQL STATEMENT: ";
+		string sql = "project " + listAttributes + " " + selectJoinedTBL;
+		string sqltosend;
+		cout << "SQL: "<<sql << endl;
+		if(sql == "ERROR" || flag)
+		{
+			cerr << "ERROR on input validation try again" << endl;
+
+		}
+		else
+		{
+			sqltosend = "SHOW (" + sql + ");\n";
+			cout<<sqltosend<<endl;
+			writePipe(sqltosend);
+			cout<<readPipe();
+		}
+}
+void CompareEmployeeStats()
+{
+	string sql;
+	cout << "\n\n";
+	cout << " ---- Compare Employee Stats ---- " << endl;
+	cout << "\nDo you want to search by Employee ..." << endl;
+	cout << "1. ID" << endl;
+	cout << "2. Name" << endl;
+	string search;
+	cout << ">";
+	cin >> search;
+	
+	string joinedTBL;
+	string selectJoinedTBL_1, selectJoinedTBL_2;
+	
+	if(search == "1")
+	{
+		joinedTBL = "(sales JOIN owns)";
+		
+		cout << "\nPlease enter the first Employee's ID" << endl;
+		cout << ">";
+		string employeeID_1;
+		cin >> employeeID_1;
+		if(!isNumber(employeeID_1)) 
+			sql="ERROR";
+		
+		
+		selectJoinedTBL_1 = "(select (employeeID == " + employeeID_1 
+								+ ") " + joinedTBL + ")";
+								
+		cout << "\nPlease enter the second Employee's ID" << endl;
+		cout << ">";
+		string employeeID_2;
+		cin >> employeeID_2;
+		if(!isNumber(employeeID_2))
+			sql="ERROR";
+		
+		selectJoinedTBL_2 = "(select (employeeID == " + employeeID_2 
+								+ ") " + joinedTBL + ")";
+								
+								
+	}
+	else if (search == "2")
+	{
+		joinedTBL = "(sales JOIN owns)";
+		
+		cout << "\nPlease enter the first Employee's Name" << endl;
+		cout << ">";
+		string employeeName_1;
+		cin >> employeeName_1;
+		
+		selectJoinedTBL_1 = "(select (employeeName == \"" + employeeName_1
+								+ "\") " + joinedTBL + ")";
+								
+		cout << "\nPlease enter the  second Employee's Name" << endl;
+		cout << ">";
+		string employeeName_2;
+		cin >> employeeName_2;
+		
+		selectJoinedTBL_2 = "(select (employeeName == \"" + employeeName_2 
+								+ "\") " + joinedTBL + ")";
+	}
+	else
+	{
+		cout << "Sorry you did not enter valid input we were looking for \"1\" or \"2\"" << endl;
+		sql="ERROR";
+	}
+		
+		//find out what the user wants to project
+		vector<string> VECattributes;
+		VECattributes.push_back("0. Order ID");
+		VECattributes.push_back("1. Employee Name");
+		VECattributes.push_back("2. Customer Name");
+		VECattributes.push_back("3. Make of Car");
+		VECattributes.push_back("4. Model of Car");
+		VECattributes.push_back("5. Cost of Car");
+		VECattributes.push_back("6. Date of Purchase");
+		VECattributes.push_back("7. Financing Rate");
+		
+		
+		cout << "\nWhat items would you like to look at about this employee?" << endl;
+		for(int i = 0; i < VECattributes.size(); i++)
+			cout << VECattributes[i] << endl;
+		
+		cout << "\nPlease enter one number at a time followed by a space then hit enter." << endl;
+		cout << "Example input: 7 5 4 0" << endl;
+		cout << ">";
+		string attribute;
+		vector<string> projectAttributes; // attributes to be projected
+		cin.ignore();
+		getline(cin, attribute);
+		string::iterator iter = attribute.begin();
+		bool flag = false;
+		while(iter != attribute.end())
+		{
+			if(*iter == ' '){
+				iter++;
+				continue;
+			}
+			//int input = (int)*iter;
+			//cout << "in:" << input << endl;
+			if(*iter != '0' && *iter != '1' && *iter != '2' && *iter != '3' && *iter != '4'
+				&& *iter != '5' && *iter != '6' && *iter != '7')
+			{	
+				flag = true;
+				break;
+			}
+			string pushAttribute = employeeStatsAttribute(*iter);
+			projectAttributes.push_back(pushAttribute);
+			++iter;
+		}
+
+		
+		//============================
+		string listAttributes = "(";
+		for(int j = 0; j < projectAttributes.size(); j++)
+		{
+			listAttributes += projectAttributes[j];
+			if(j<projectAttributes.size()-1)
+				listAttributes += ",";
+		}
+		listAttributes += ")";
+		
+		if(sql == "ERROR" || flag)
+		{
+			cerr << "ERROR on input validation try again" << endl;
+		}
+		else
+		{	
+			string employee1Sql = "project " + listAttributes + " " + selectJoinedTBL_1;
+			string employee2Sql = "project " + listAttributes + " " + selectJoinedTBL_2;
+			sql = "("+ employee1Sql + ") - (" +employee2Sql + ")";
+			//cout << "e1: " << employee1Sql << endl;
+			//cout << "e2: " << employee2Sql << endl;
+			//cout << "sql: " << sql << endl;
+			string sqltosend = "SHOW (" + sql + ");\n";
+			//cout<<sqltosend<<endl;
+			//cout<<"WRITING"<<endl;
+			writePipe(sqltosend);
+		//	cout<<"DONE"<<endl;
+			cout<<readPipe();
+			//cout<<"FINISHED READING"<<endl;
+		}
+}
 int main()
 {	
-	readbuffer[255] = ' ';
+	//readbuffer[255] = ' ';
 	pipe(fileDescriptor_ParentToChild);//create pipe-to-child
 	pipe(fileDescriptor_ChildToParent);//create pipe-from-child
 	int childPID = fork();
@@ -479,23 +848,31 @@ int main()
 		close( fileDescriptor_ParentToChild[0]);//close read end of p2c
 		close(fileDescriptor_ChildToParent[1]);//close write end of pFc
 		guarunteedOpen();
-		int choice = 0;
-		while(choice !=8)
+		string choice = "0";
+		while(stoi(choice) !=8)
 		{
 			cout<<"List of available commands"<<endl;
 			cout<<"Please enter the number of the desired command"<<endl;
 			cout<<"0. Show Table (For Debugging will not be in final project)"<<endl;
 			cout<<"1. Open Table (Should be Add/Remove Stock of cars)"<<endl;
-			cout<<"2. Unimplemented (Employee Sale stats)"<<endl;
-			cout<<"3. Unimplemented (Compar Employees)"<<endl;
+			cout<<"2. Employee Sale stats"<<endl;
+			cout<<"3. Compare Employees"<<endl;
 			cout<<"4. Make a sale"<<endl;
 			cout<<"5. Look up a sale"<<endl;
 			cout<<"6. Search by name/model/employee/etc."<<endl;
-			cout<<"7. Expand Dealershup/ getLargeInventory"<<endl;
-			cout<<"8. Quit"<<endl;
+			cout<<"7. Remove a pending Sale" << endl;
+			cout<<"8. Expand Dealership/ getLargeInventory"<<endl;
+			cout<<"9. Quit"<<endl;
 			cout<<endl;
 			cin>>choice;
-			switch(choice)
+			while(!isNumber(choice))
+			{
+				cout<<"Comon man, enter a number"<<endl;
+				cin>>choice;
+			}
+			string sql1 = "";
+			string sqltosend = "";
+			switch(stoi(choice))
 			{
 				case 0:
 					show();
@@ -504,10 +881,10 @@ int main()
 					open();
 				break;
 				case 2:
-					
+					employeeStats();
 				break;
 				case 3:
-					
+					CompareEmployeeStats();
 				break;
 				case 4:
 					createSale();
@@ -519,16 +896,21 @@ int main()
 					search();
 				break;
 				case 7:
-					
+					removeSale();
 				break;
 				case 8:
+				break;
+				case 9:
 					writePipe("EXIT;\n");
 					cout<<"Sending Request"<<endl;
 					readPipe();
 					readPipe();
 				break;
-				case 9:
+				case 10:
 					writeTable();
+				break;
+				default:
+					cerr << "WHAT ARE YOU THINKING BILLY" << endl;
 				break;
 			}
 		}

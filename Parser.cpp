@@ -9,9 +9,9 @@
 void Parser::parse(string input)
 {
 	tokens.clear();
-	if(input.size()>0)
+	//if(input.size()>0)
 	//cout << "input: " << input << endl;
-	cerr << "input: " << input << endl;
+	//cerr << "input: " << input << endl;
 	string reserveWord;
 	storedInput = input;	
 	commandAlreadyProcessed = false;
@@ -137,27 +137,41 @@ void Parser::parse(string input)
 			}
 			else
 			{
+				cerr<<"Came Here"<<endl;
 				newTblName = Query();
 				Table* newTbl = db.getTableByName(newTblName);
-					bool hasSpace = false;
-					for(int c = 0; c < newTblName.size(); c++)
+				bool hasSpace = false;
+				for(int c = 0; c < newTblName.size(); c++)
+				{
+					if(isspace(newTblName.at(c)))
 					{
-						if(isspace(newTblName.at(c)))
-						{
-							hasSpace = true;
-							break;
-						}
+						cerr<<"has space :("<<endl;
+						cerr<<newTblName<<" "<<c<<newTblName[c]<<endl;
+						hasSpace = true;
+						break;
 					}
-					if(!hasSpace)
-					{
-						newTbl->changeTableName(tokens[0]);
-					}
+				}
+				cerr<<newTblName<<endl;
+				if(hasSpace)
+				{
+					//newTbl->changeTableName(tokens[0]);
+					//newTblName = tokens[0];
+				}
+				cerr<<showCommand<<" "<<newTblName<<endl;
+				cerr<<"Left with tokens"<<endl;
+				for(int x = 0; x<tokens.size(); x++)
+					cerr<<tokens[x]<<endl;
 			}
 			if(showCommand)
-				db.show(tokens[0]);
+			{
+				db.show(newTblName);
+			}
 		}
 		else
+		{
 			db.show(tokens[0]);
+		}
+		
 	}
 
 	db.dropQueryVec();
@@ -198,8 +212,10 @@ string Parser::Query()
 		}
 		else if(tokens[tokenIndex] == "project")
 		{
+			cerr<<"Calling project"<<endl;
 			++tokenIndex;
 			tblName = callProject();
+			cerr<<tblName<<endl;
 			return tblName;
 		}
 		else if(tokens[tokenIndex] == "naturalJoin")
@@ -369,7 +385,7 @@ string Parser::callSetDifference()
 		++tokenIndex;
 		rhsTblName = Query();
 		//replace tokens[startDelimiter] with tblName
-		tokens[startDelimiter] = tblName;
+		tokens[startDelimiter] = rhsTblName;
 		//erase everything up to endDelimeter
 		tokens.erase(tokens.begin()+startDelimiter+1, tokens.begin()+endDelimiter+1);
 		tokenIndex =startDelimiter+1;
@@ -502,12 +518,19 @@ string Parser::callProject()
 	else
 	{
 		tblName = tokens[tokenIndex];
+		//tokens[tokenIndex] = tblName;
+		cerr << "tbl:" << tblName << endl;
 		tokenIndex++;
 		if(tokens[tokenIndex] == ")")// && startDelimiter != -1)
 		{	
 			endDelimiter = tokenIndex;
 		}
 		endDelimiter = tokenIndex;
+		
+		/*for(int z = 0; )
+		{
+			
+		}*/
 	}
 	string retName = db.projection(tblName, attrList);
 	return retName;
@@ -798,7 +821,6 @@ string Parser::readIdentifier()
 ****/
 vector<string> Parser::parseArgs()
 {
-	cerr<<"Even here"<<endl;
 	vector<string> args;
 	int start = -1;
 	int end = -1;
@@ -808,7 +830,6 @@ vector<string> Parser::parseArgs()
 	{
 		if(*position == '"' && start == -1)
 		{
-			cerr<<1<<endl;
 			start = 1;
 			++iter;
 			++position;
@@ -816,7 +837,6 @@ vector<string> Parser::parseArgs()
 		}
 		else if(start != -1 && *position == '"')
 		{
-			cerr<<2<<endl;
 			end = iter;
 			++iter;
 			++position;
@@ -824,21 +844,16 @@ vector<string> Parser::parseArgs()
 		}
 		else if(start!= -1 && *position != ',' && *position!=')' && *position != ';' && *position!=' ')
 		{
-			cerr<<3<<endl;
 			currentArg+= (*position);
 			++iter;
 			++position;
 		}
 		else if(start!=-1 && (*position == ',' || *position == ')' || *position ==';'))
 		{
-			cerr<<4<<endl;
-			cerr<<currentArg<<endl;
-			cerr<<start<<" "<<end<<endl;
 			if(start != 0)
 				currentArg = currentArg.substr(start,end-1);	
 			else
 				currentArg = currentArg.substr(start,end-1);
-			cerr<<">"<<currentArg<<"<"<<endl;
 			args.push_back(currentArg);		
 			currentArg = "";
 			iter = 0;
@@ -848,13 +863,11 @@ vector<string> Parser::parseArgs()
 		}
 		else if(isdigit(*position))
 		{
-			cerr<<5<<endl;
 			while(isdigit(*position))
 			{
 				currentArg += *position;
 				++position;
 			}
-			cerr<<">"<<currentArg<<"<"<<endl;
 			args.push_back(currentArg);
 			iter = 0;
 			currentArg = "";
@@ -863,16 +876,11 @@ vector<string> Parser::parseArgs()
 		}
 		else
 		{
-			cerr<<6<<endl;
 			//++iter;
 			++position;
 		}
 	
 	}
-	cerr<<"test"<<endl;
-	for(int x =0; x<args.size(); x++)
-		cerr<<args[x]<<endl;
-	cerr<<"test"<<endl;
 	return args;
 }
 /****
@@ -915,18 +923,12 @@ bool Parser::isReserveWord(string reserveWord)
 	}
 	else if(reserveWord == "INSERTINTO")
 	{ 
-		cerr<<"was here"<<endl;
 		storedTable = readIdentifier();
 	}
 	else if(reserveWord == "VALUESFROM")
 	{ 
-		cerr<<"was there"<<endl;
 		commandAlreadyProcessed = true;
 		vector<string> args = parseArgs();
-		cerr<<"test"<<endl;
-		for(int x =0; x<args.size(); x++)
-			cerr<<args[x]<<endl;
-		cerr<<"test"<<endl;
 		db.insertToTable(storedTable, args);
 	}
 	else if(reserveWord == "VALUESFROMRELATION")

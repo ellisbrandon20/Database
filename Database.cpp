@@ -27,6 +27,7 @@ Database::~Database()
     _dbTables.clear();
 }
 
+
 //functions
 /****
 		The openTable() function accepts a name of a table as an argument to open a .db file that has 
@@ -47,7 +48,7 @@ void Database::openTable(string tableName)
     }
     else
     {
-		cout << "Opened file " << file << endl;
+		cout<< "Opened file " << file << endl;
     	// load information from file into vectors
     	vector<Attribute> attributes;
     	getAttributesInFile(inputFile, attributes);
@@ -103,7 +104,7 @@ void Database::closeTable(string tableName)
 ****/
 void Database::writeTable(string tableName)
 {
-	ofstream outputFile(DBFILEPATH+tableName + ".db");
+	ofstream outputFile(DBFILEPATH+tableName + ".db", ofstream::trunc);
 	
     int tblIndex = getTableIndex(_dbTables, tableName);   
     if(tblIndex < 0)
@@ -675,10 +676,10 @@ void Database::deleteFromTable(string tableName, string attrName, string op, vec
 						else
 						{
 							// use this if-stmt for strings
-							cout << toCompare << " != " << comp[k] << endl;
+							//cout << toCompare << " != " << comp[k] << endl;
 							if(toCompare != comp[k]){
 								deleteRecord = true;
-								cout <<"true"<<endl;
+								//cout <<"true"<<endl;
 							}
 							else
 								skip = true;
