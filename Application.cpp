@@ -681,6 +681,8 @@ string employeeStatsAttribute(char attribute)
 }
 void employeeStats()
 {
+	string sql;
+	bool flag = false;
 	cout << "\n\n";
 	cout << " ---- View Employee Stats ---- " << endl;
 	
@@ -720,8 +722,11 @@ void employeeStats()
 	else
 	{
 		cout << "\nSorry you did not enter valid input we were looking for \"1\" or \"2\"" << endl;
+		sql = "ERROR";
 		//return "ERROR";
 	}
+	if (sql != "ERROR")
+	{
 		//find out what the user wants to project
 		vector<string> VECattributes;
 		VECattributes.push_back("0. Order ID");
@@ -746,7 +751,7 @@ void employeeStats()
 		cin.ignore();
 		getline(cin, attribute);
 		string::iterator iter = attribute.begin();
-		bool flag = false;
+		
 		while(iter != attribute.end())
 		{
 			if(*iter == ' '){
@@ -763,7 +768,7 @@ void employeeStats()
 			projectAttributes.push_back(pushAttribute);
 			++iter;
 		}
-
+		cout << "\n\n";
 		
 		//============================
 		string listAttributes = "(";
@@ -778,7 +783,8 @@ void employeeStats()
 		
 		//cout << "::" << selectJoinedTBL << endl;
 		//cout << "SQL STATEMENT: ";
-		string sql = "project " + listAttributes + " " + selectJoinedTBL;
+		sql = "project " + listAttributes + " " + selectJoinedTBL;
+	}
 		string sqltosend;
 		//cout << "SQL: "<<sql << endl;
 		if(sql == "ERROR" || flag)
@@ -1030,8 +1036,8 @@ int main()
 			cout << "--------------------------------------------------------" << endl;
 			cout<<"List of available commands"<<endl;
 			cout<<"Please enter the number of the desired command"<<endl;
-			cout<<"0. Show Table (For Debugging will not be in final project)"<<endl;
-			cout<<"1. Open Table (Should be Add/Remove Stock of cars)"<<endl;
+			//cout<<"0. Show Table (For Debugging will not be in final project)"<<endl;
+			cout<<"1. Show Table"<<endl;
 			cout<<"2. Employee Sale stats"<<endl;
 			cout<<"3. Compare Employees"<<endl;
 			cout<<"4. Make a sale"<<endl;
@@ -1056,11 +1062,11 @@ int main()
 			string sqltosend = "";
 			switch(stoi(choice))
 			{
-				case 0:
-					show();
-				break;
+				//case 0:
+				//	show();
+				//break;
 				case 1:
-					open();
+					show();
 				break;
 				case 2:
 					employeeStats();
