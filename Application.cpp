@@ -38,9 +38,9 @@ string readPipe()
 	}
 	return receive_output;
 }
-void writePipe(string s)
+void writePipe(string sql)
 {
-	write(fileDescriptor_ParentToChild[1], s.c_str(), strlen(s.c_str()));
+	write(fileDescriptor_ParentToChild[1], sql.c_str(), strlen(sql.c_str()));
 }
 /*void goOffline()
 {
@@ -90,42 +90,42 @@ void goOnline()
 }*/
 void guarunteedOpen()
 {
-	string s = "OPEN sales;\n";
-	writePipe(s);
-	if(readPipe().substr(0,11)== "OPEN sales;")
+	string sql = "OPEN sales;\n";
+	writePipe(sql);
+	/*if(readPipe().substr(0,11)== "OPEN sales;")
 	{
 		cout<<"Sales records successfully opened"<<endl;
 	}
 	else
 	{
-		s = "CREATE TABLE sales (employeeName VARCHAR(20), employeeID INTEGER, orderID INTEGER,"
+		sql = "CREATE TABLE sales (employeeName VARCHAR(20), employeeID INTEGER, orderID INTEGER,"
 							"financingRate INTEGER, isPending INTEGER, cost INTEGER, customerName "
 							"VARCHAR(20), dateOfPurchase INTEGER, amountOwed INTEGER) PRIMARY KEY (orderID);\n";
-		writePipe(s);
+		writePipe(sql);
 		cout<<readPipe();
-		s = "OPEN sales;\n";
-		writePipe(s);
+		sql = "OPEN sales;\n";
+		writePipe(sql);
 		cout<<readPipe();
-	}
-	s = "OPEN owns;\n";
-	writePipe(s);
-	if(readPipe().substr(0,11)== "Opened file")
+	}*/
+	sql = "OPEN owns;\n";
+	writePipe(sql);
+	/*if(readPipe().substr(0,11)== "Opened file")
 	{
 		cout<<"Owns records successfully opened"<<endl;
 	}
 	else
 	{
-		s = "CREATE TABLE owns (customerName VARCHAR(20), dateOfPurchase INTEGER, amountOwed INTEGER,"
+		sql = "CREATE TABLE owns (customerName VARCHAR(20), dateOfPurchase INTEGER, amountOwed INTEGER,"
 							"color VARCHAR(20), year INTEGER, model VARCHAR(20), make VARCHAR(20))"
 							"PRIMARY KEY (customerName, dateOfPurchase);\n";
-		writePipe(s);
+		writePipe(sql);
 		cout<<readPipe();
-		s = "OPEN owns;\n";
-		writePipe(s);
+		sql = "OPEN owns;\n";
+		writePipe(sql);
 		cout<<readPipe();
 	}
 	cout<<endl;
-	cout<<endl;
+	cout<<endl;*/
 }
 bool isNumber(string& input)
 {
@@ -139,7 +139,7 @@ void searchForSale()
 {
 	string orderID;
 	string customer;
-	string s;
+	string sql;
 	cout << "\n\n";
 	cout << " ---- Look up a Sale ---- " << endl;
 	cout<<"\nPlease enter the order ID if you know it or -1 if you do not"<<endl;
@@ -152,25 +152,25 @@ void searchForSale()
 		cout << ">";
 		cin>>customer;
 		cout<<"\nDisplaying all purchases made by this customer"<<endl;
-		s = "SHOW a <- select (customerName==\""+ customer +"\") sales;\n";
-		writePipe(s);
+		sql = "SHOW a <- select (customerName==\""+ customer +"\") sales;\n";
+		writePipe(sql);
 		cout<<readPipe()<<endl;
 		cout<<"\nPlease enter the orderID of the desired purchase shown above or -1 to exit"<<endl;
 		cout << ">";
 		cin>>orderID;
 		if(orderID!="-1")
-			s = "SHOW a <- select (orderID=="+ orderID +") "+salesDB+";\n";
+			sql = "SHOW a <- select (orderID=="+ orderID +") "+salesDB+";\n";
 	}
 	else
-		s = "SHOW a <- select (orderID=="+ orderID +") "+salesDB+";\n";
-	writePipe(s);
+		sql = "SHOW a <- select (orderID=="+ orderID +") "+salesDB+";\n";
+	writePipe(sql);
 	cout<<readPipe();
 }
 void search()
 {
 	int search;
 		int subSearch, rangeOfDates;
-		string s,
+		string sql,
 			   orderID, 
 			   employee,
 			   employeeID,
@@ -212,14 +212,14 @@ void search()
 				cout << ">";
 				cin>>employee;
 				if(subSearch ==1)
-					s = "SHOW (select (employeeName == \""+employee+"\") "+salesDB+");\n";
+					sql = "SHOW (select (employeeName == \""+employee+"\") "+salesDB+");\n";
 			}
 			else if(subSearch == 2)
 			{
 				cout<<"\nEnter the ID you would like to search for"<<endl;
 				cout << ">";
 				cin>>employeeID;
-				s = "SHOW (select (employeeID == "+employeeID+") "+salesDB+");\n";
+				sql = "SHOW (select (employeeID == "+employeeID+") "+salesDB+");\n";
 			}
 			else
 				cout<<"Not '1' or '2' returning to main menu"<<endl;
@@ -234,7 +234,7 @@ void search()
 				cout<<"\nEnter the ID you would like to search for"<<endl;
 				cout << ">";
 				cin>>orderID;
-				s = "SHOW (select (orderID=="+ orderID +") "+salesDB+");\n";
+				sql = "SHOW (select (orderID=="+ orderID +") "+salesDB+");\n";
 			}
 			else if(subSearch == 2)
 			{
@@ -245,11 +245,11 @@ void search()
 				cout << ">";
 				cin>>op;
 				if(op == "=")
-					s = "SHOW (select (financingRate == "+financingRate+") "+salesDB+");\n";
+					sql = "SHOW (select (financingRate == "+financingRate+") "+salesDB+");\n";
 				else if(op == ">")
-					s = "SHOW (select (financingRate > "+financingRate+") "+salesDB+");\n";
+					sql = "SHOW (select (financingRate > "+financingRate+") "+salesDB+");\n";
 				else if(op == "<")
-					s = "SHOW (select (financingRate < "+financingRate+") "+salesDB+");\n";
+					sql = "SHOW (select (financingRate < "+financingRate+") "+salesDB+");\n";
 				else
 					cout<<"\nDid not enter =,>,or < returning to main menu"<<endl;
 			}
@@ -262,11 +262,11 @@ void search()
 				cout<<">";
 				cin>>op;
 				if(op == "=")
-					s = "SHOW (select (cost == "+cost+") "+salesDB+");\n";
+					sql = "SHOW (select (cost == "+cost+") "+salesDB+");\n";
 				else if(op == ">")
-					s = "SHOW (select (cost > "+cost+") "+salesDB+");\n";
+					sql = "SHOW (select (cost > "+cost+") "+salesDB+");\n";
 				else if(op == "<")
-					s = "SHOW (select (cost < "+cost+") "+salesDB+");\n";
+					sql = "SHOW (select (cost < "+cost+") "+salesDB+");\n";
 				else
 					cout<<"\nDid not enter =,>,or < returning to main menu"<<endl;
 			}
@@ -283,7 +283,7 @@ void search()
 				cout<<"Enter the name you would like to search for"<<endl;
 				cout<<endl;
 				cin>>customer;
-				s = "SHOW (select (customerName == \""+customer+"\") "+salesDB+");\n";
+				sql = "SHOW (select (customerName == \""+customer+"\") "+salesDB+");\n";
 			}
 			else if(subSearch == 2)
 			{
@@ -307,16 +307,16 @@ void search()
 				cin>>rangeOfDates;
 				if(rangeOfDates == 1)
 				{
-					s = "SHOW (select (dateOfPurchase < "+dateOfPurchase+") "+salesDB+");\n";
+					sql = "SHOW (select (dateOfPurchase < "+dateOfPurchase+") "+salesDB+");\n";
 				}
 				else if(rangeOfDates == 2)
-					s = "SHOW (select (dateOfPurchase > "+dateOfPurchase+") "+salesDB+");\n";
+					sql = "SHOW (select (dateOfPurchase > "+dateOfPurchase+") "+salesDB+");\n";
 				else if(rangeOfDates == 3)
-					s = "SHOW (select (dateOfPurchase == "+dateOfPurchase+") "+salesDB+");\n";
+					sql = "SHOW (select (dateOfPurchase == "+dateOfPurchase+") "+salesDB+");\n";
 				else
 				{
 					cout<<"Did not enter 'on', 'before', or 'after' returning to main menu"<<endl;
-					s = "ERROR";
+					sql = "ERROR";
 				}
 			}
 			else if(subSearch == 3)
@@ -328,11 +328,11 @@ void search()
 				cout << ">";
 				cin>>op;
 				if(op == "=")
-					s = "SHOW (select (amoutOwed == "+amountOwed+") "+salesDB+");\n";
+					sql = "SHOW (select (amoutOwed == "+amountOwed+") "+salesDB+");\n";
 				else if(op == ">")
-					s = "SHOW (select (amountOwed > "+amountOwed+") "+salesDB+");\n";
+					sql = "SHOW (select (amountOwed > "+amountOwed+") "+salesDB+");\n";
 				else if(op == "<")
-					s = "SHOW (select (amountOwed < "+amountOwed+") "+salesDB+");\n";
+					sql = "SHOW (select (amountOwed < "+amountOwed+") "+salesDB+");\n";
 				else
 					cout<<"\nDid not enter =,>,or < returning to main menu"<<endl;
 			}
@@ -349,7 +349,7 @@ void search()
 				cout<<"\nEnter the color you are looking for"<<endl;
 				cout << ">";
 				cin>>color;
-				s = "SHOW (select (color == \""+color+"\") "+ownsDB+");\n";
+				sql = "SHOW (select (color == \""+color+"\") "+ownsDB+");\n";
 			}
 			else if(subSearch == 2)
 			{
@@ -361,15 +361,15 @@ void search()
 				cin>>rangeOfDates;
 				if(rangeOfDates == 3)
 				{
-					s = "SHOW (select (year == "+year+") "+ownsDB+");\n";
+					sql = "SHOW (select (year == "+year+") "+ownsDB+");\n";
 				}
 				else if(rangeOfDates == 1)
-					s = "SHOW (select (year < "+year+") "+ownsDB+");\n";
+					sql = "SHOW (select (year < "+year+") "+ownsDB+");\n";
 				else if(rangeOfDates == 2)
-					s = "SHOW (select (year > "+year+") "+ownsDB+");\n";
+					sql = "SHOW (select (year > "+year+") "+ownsDB+");\n";
 				else
 				{
-					s = "ERROR";
+					sql = "ERROR";
 					cout<<"\nDid not enter 1, 2, or 3 returning to main menu"<<endl;
 				}
 			}
@@ -378,19 +378,19 @@ void search()
 				cout<<"\nEnter the Model you are looking for"<<endl;
 				cout << ">";
 				cin>>model;
-				s = "SHOW (select (model == \""+model+"\") "+ownsDB+");\n";
+				sql = "SHOW (select (model == \""+model+"\") "+ownsDB+");\n";
 			}
 			else if(subSearch == 4)
 			{
 				cout<<"\nEnter the Make you are looking for"<<endl;
 				cin>>make;
-				s = "SHOW (select (make == \""+make+"\") "+ownsDB+");\n";
+				sql = "SHOW (select (make == \""+make+"\") "+ownsDB+");\n";
 			}
 			else
 				cout<<"\nDid not enter a '1', '2', '3', or '4' returning to main menu"<<endl;
 		break;
 	}
-	writePipe(s);
+	writePipe(sql);
 	cout<<readPipe();
 }
 void show()
@@ -401,17 +401,21 @@ void show()
 	cout<<"\nShow Sales(1), Owns(2), or both(3)?"<<endl;
 	cout << ">";
 	cin>>choice;
+	cout<<endl;
+	cout<<endl;
 	if(choice == 1 || choice == 3)
 	{
-		string s = "SHOW "+salesDB+";\n";
-		writePipe(s);
+		string sql = "SHOW "+salesDB+";\n";
+		writePipe(sql);
 		cout<<readPipe();
 		cout<<endl;
 	}
+	cout<<endl;
+	cout<<endl;
 	if(choice == 2 || choice == 3)
 	{
-		string s = "SHOW "+ownsDB+";\n";
-		writePipe(s);
+		string sql = "SHOW "+ownsDB+";\n";
+		writePipe(sql);
 		cout<<readPipe();
 	}
 	cout<<endl;
@@ -421,8 +425,8 @@ void writeTable()
 {
 	cout << "\n\n";
 	cout << " ---- Writing Table ---- " << endl;
-	string s = "WRITE "+salesDB+";\n";
-	writePipe(s);
+	string sql = "WRITE "+salesDB+";\n";
+	writePipe(sql);
 }
 void open()
 {
@@ -463,12 +467,12 @@ void createSale()
 	cout<<"\nEnter name of Employee making the sale"<<endl;
 	cout << ">";
 	cin>>employeeName;
-	cout<<"\nEnter orderID"<<endl;
-	cout << ">";
-	cin>>orderID;
 	cout<<"\nEnter EmployeeID of Employee making the sale"<<endl;
 	cout << ">";
 	cin>>employeeID;
+	cout<<"\nEnter orderID"<<endl;
+	cout << ">";
+	cin>>orderID;
 	cout<<"\nEnter customer name"<<endl;
 	cout << ">";
 	cin>>customerName;
@@ -512,7 +516,8 @@ void createSale()
 		orderStatus = "1";
 	else
 		orderStatus = "0";
-	string fullSale = " (\""+employeeName+"\" , "+employeeID+" , "+orderID+" , "+financingRate+" , "+cost+" , "+orderStatus+" , \""+customerName+"\" ,"+dateOfPurchase+" , "+cost+");\n";
+	string fullSale = " (\""+employeeName+"\" , "+employeeID+" , "+orderID+" , "+financingRate+" , "
+					+cost+" , "+orderStatus+" , \""+customerName+"\" ,"+dateOfPurchase+" , "+cost+");\n";
 	cout<<"\nWhat color is the car?"<<endl;
 	cout << ">";
 	cin>>color;
@@ -525,12 +530,16 @@ void createSale()
 	cout<<"\nWhat model is it?"<<endl;
 	cout << ">";
 	cin>>model;
-	string ownsConstruct = " (\""+customerName+"\" , "+dateOfPurchase+" , "+cost+" , \""+color+"\" , "+year+" , \""+model+"\" , \""+make+"\");\n";
+	string ownsConstruct = " (\""+customerName+"\" , "+dateOfPurchase+" , "+cost+" , \""
+						+color+"\" , "+year+" , \""+model+"\" , \""+make+"\");\n";
 	//orderID++;
-	string s = "INSERT INTO "+salesDB+" VALUES FROM"+fullSale;
-	writePipe(s);
-	s = "INSERT INTO "+ownsDB+" VALUES FROM"+ownsConstruct;
-	writePipe(s);
+	string sql = "INSERT INTO "+salesDB+" VALUES FROM"+fullSale;
+	writePipe(sql);
+	if(orderStatus != "1")
+	{
+		sql = "INSERT INTO "+ownsDB+" VALUES FROM"+ownsConstruct;
+		writePipe(sql);
+	}
 	//cout<<readPipe();
 	cout<<"\nThe sale has been entered in the database successfully"<<endl;
 }
@@ -961,7 +970,10 @@ void updateAmountOwed()
 	string amountOwed;
 	cin >> amountOwed;
 	
-	sql = "UPDATE owns SET amountOwed = " +amountOwed+" WHERE (customerName == \"" +customerName+ "\" && dateOfPurchase == " + dateOfPurchase + ");\n";
+	sql = "UPDATE owns SET amountOwed = " +amountOwed+" WHERE (customerName == \"" 
+		+customerName+ "\" && dateOfPurchase == " + dateOfPurchase + ");\n";
+		
+	
 	
 	
 	if(!isNumber(amountOwed))
@@ -969,6 +981,10 @@ void updateAmountOwed()
 	
 	if(sql != "ERROR")
 	{
+		writePipe(sql);
+		cout<<readPipe();
+		sql = "UPDATE sales SET amountOwed = " +amountOwed+" WHERE (customerName == \"" 
+			+customerName+ "\" && dateOfPurchase == " + dateOfPurchase + ");\n";
 		writePipe(sql);
 		cout<<readPipe();
 	}

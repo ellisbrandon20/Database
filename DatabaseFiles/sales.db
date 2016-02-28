@@ -1,8 +1,8 @@
 |employeeName[VARCHAR(20)]||employeeID[INTEGER]||*orderID[INTEGER]||financingRate[INTEGER]||cost[INTEGER]||isPending[INTEGER]||customerName[VARCHAR(20)]||dateOfPurchase[INTEGER]||amountOwed[INTEGER]|
-|bob||01||1001||9||50000||0||Fred||01052010||50000|
-|bob||01||1002||9||300||0||Paatrick||01052015||300|
-|bob||01||1003||9||400||0||SpongeBob||01062010||400|
-|Jill||02||1004||9||500000||0||DaffyDuck||12192015||500000|
-|Jill||02||1005||9||100||0||def||02252016||100|
-|Jill||02||1006||9||100||0||custName||01011001||8675209|
-|ROn||03||5567||21||54||0||Jin||2272016||54|
+|bob||01||1001||9||50000||0||Fred||20100105||50000|
+|bob||01||1002||9||300||0||Paatrick||20150105||300|
+|bob||01||1003||9||400||0||SpongeBob||20100106||400|
+|Jill||02||1004||9||500000||0||DaffyDuck||20151219||500000|
+|Jill||02||1005||9||100||0||def||20160225||100|
+|Jill||02||1006||9||100||0||custName||20100101||8675209|
+|ROn||03||5567||21||54||0||Jin||2016227||54|

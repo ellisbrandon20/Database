@@ -1,8 +1,8 @@
 |*customerName[VARCHAR(20)]||*dateOfPurchase[INTEGER]||amountOwed[INTEGER]||color[VARCHAR(20)]||year[INTEGER]||model[VARCHAR(20)]||make[VARCHAR(20)]|
-|custName||01011001||50||banana||20217||MODEL||MAKE|
-|DaffyDuck||12192015||500000||orange||1998||Bronco||Ford|
-|Fred||01052010||50000||red||2010||F-150||Ford|
-|Paatrick||01052015||300||red||2000||Mustanh||Ford|
-|SpongeBob||01062010||400||white||2010||Prius||Toyota|
-|def||02252016||100||red||2026||model||make|
-|BEEBEE||2272016||420||Greenish||1990||oShit||piece|
+|custName||20100101||8675209||banana||20217||MODEL||MAKE|
+|DaffyDuck||20151219||500000||orange||1998||Bronco||Ford|
+|Fred||20100105||50000||red||2010||F-150||Ford|
+|Paatrick||20150105||300||red||2000||Mustanh||Ford|
+|SpongeBob||20100106||400||white||2010||Prius||Toyota|
+|def||20160225||100||red||2026||model||make|
+|BEEBEE||20160227||420||Greenish||1990||oShit||piece|

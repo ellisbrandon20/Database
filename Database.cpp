@@ -48,7 +48,7 @@ void Database::openTable(string tableName)
     }
     else
     {
-		cout<< "Opened file " << file << endl;
+		//cout<< "Opened file " << file << endl;
     	// load information from file into vectors
     	vector<Attribute> attributes;
     	getAttributesInFile(inputFile, attributes);
