@@ -163,12 +163,19 @@ void searchForSale()
 	}
 	else
 		sql = "SHOW a <- select (orderID=="+ orderID +") "+salesDB+";\n";
+	cout << endl;
+	cout << endl;
 	writePipe(sql);
 	cout<<readPipe();
 }
 void search()
 {
+	
+
 	int search;
+	string searchSTR;
+	string subSearchSTR;
+	string rangeOfDatesSTR;
 		int subSearch, rangeOfDates;
 		string sql,
 			   orderID, 
@@ -198,14 +205,29 @@ void search()
 	cout<<"4. Search by Car"<<endl;
 	cout<<endl;
 	cout << ">";
-	cin>>search;
+	cin>>searchSTR;
+	if(!isNumber(searchSTR))
+	{
+		cout << "\nSorry you didn't enter a valid input of '1', '2', '3', or '4'" << endl;
+		search = 99;
+	}
+	else
+		search = atoi(searchSTR.c_str());
+	 
 	switch(search)
 	{
 		case 1:
-			cout<<"\nSearching by employee"<<endl;
-			cout<<"Search by Employee name(1) or Employee ID(2)?"<<endl;
+			cout<<"\n--Searching by employee--"<<endl;
+			cout<<"\nSearch by Employee name(1) or Employee ID(2)?"<<endl;
 			cout << ">";
-			cin>>subSearch;
+			cin>>subSearchSTR;
+			if(!isNumber(subSearchSTR))
+			{
+				cout << "\nSorry you didn't enter a valid input of '1', or '2'" << endl;
+				search = 99;
+			}
+			else
+				subSearch = atoi(subSearchSTR.c_str());
 			if(subSearch == 1)
 			{
 				cout<<"\nEnter the name you would like to search for"<<endl;
@@ -219,69 +241,127 @@ void search()
 				cout<<"\nEnter the ID you would like to search for"<<endl;
 				cout << ">";
 				cin>>employeeID;
-				sql = "SHOW (select (employeeID == "+employeeID+") "+salesDB+");\n";
+				if(!isNumber(employeeID))
+					sql = "ERROR";
+				else
+					sql = "SHOW (select (employeeID == "+employeeID+") "+salesDB+");\n";
 			}
 			else
+			{
 				cout<<"Not '1' or '2' returning to main menu"<<endl;
+				sql = "ERROR";
+			}
 		break;
 		case 2:
-			cout<<"\nSearching by order"<<endl;
-			cout<<"Search by Order ID(1), Financing Rate(2), or Cost(3)?"<<endl;
+			cout<<"\n--Searching by order--"<<endl;
+			cout<<"\nSearch by Order ID(1), Financing Rate(2), or Cost(3)?"<<endl;
 			cout << ">";
-			cin>>subSearch;
+			cin>>subSearchSTR;
+			if(!isNumber(subSearchSTR))
+			{
+				cout << "\nSorry you didn't enter a valid input of '1', '2', or '3'" << endl;
+				search = 99;
+			}
+			else
+				subSearch = atoi(subSearchSTR.c_str());
 			if(subSearch == 1)
 			{
 				cout<<"\nEnter the ID you would like to search for"<<endl;
 				cout << ">";
 				cin>>orderID;
-				sql = "SHOW (select (orderID=="+ orderID +") "+salesDB+");\n";
+				if(!isNumber(orderID))
+					sql = "ERROR";
+				else
+					sql = "SHOW (select (orderID=="+ orderID +") "+salesDB+");\n";
 			}
 			else if(subSearch == 2)
 			{
 				cout<<"\nEnter the Financing Rate you would like to search for"<<endl;
 				cout << ">";
 				cin>>financingRate;
-				cout<<"\nSearch for Financing Rates higher(>), lower(<), or equal to (=) entered rate"<<endl;
+				cout<<"\nSearch for Financing Rates higher(>), lower(<), equal to (=),"<<endl;
+				cout<<"\thigher or equal(>=), lower or equal(<=), or not equal to (!=) entered rate."
+					<<endl;
 				cout << ">";
 				cin>>op;
-				if(op == "=")
-					sql = "SHOW (select (financingRate == "+financingRate+") "+salesDB+");\n";
-				else if(op == ">")
-					sql = "SHOW (select (financingRate > "+financingRate+") "+salesDB+");\n";
-				else if(op == "<")
-					sql = "SHOW (select (financingRate < "+financingRate+") "+salesDB+");\n";
+				if(!isNumber(financingRate))
+					sql = "ERROR";
 				else
-					cout<<"\nDid not enter =,>,or < returning to main menu"<<endl;
+				{
+					if(op == "=")
+						sql = "SHOW (select (financingRate == "+financingRate+") "+salesDB+");\n";
+					else if(op == ">")
+						sql = "SHOW (select (financingRate > "+financingRate+") "+salesDB+");\n";
+					else if(op == "<")
+						sql = "SHOW (select (financingRate < "+financingRate+") "+salesDB+");\n";
+					else if (op == ">=")
+						sql = "SHOW (select (financingRate >= "+financingRate+") "+salesDB+");\n";
+					else if (op == "<=")
+						sql = "SHOW (select (financingRate <= "+financingRate+") "+salesDB+");\n";
+					else if (op == "!=")
+						sql = "SHOW (select (financingRate != "+financingRate+") "+salesDB+");\n";
+					else
+					{
+						cout<<"\nDid not enter =,>,<,>=,<=,!= returning to main menu"<<endl;
+						sql = "ERROR";
+					}
+				}
 			}
 			else if(subSearch == 3)
 			{
 				cout<<"\nEnter the cost you would like to search for"<<endl;
 				cout << ">";
 				cin>>cost;
-				cout<<"\nSearch for financing rates higher(>), lower(<), or equal to (=) entered rate"<<endl;
+				cout<<"\nSearch for cost higher(>), lower(<), equal to (=),"<<endl;
+				cout<<"\thigher or equal(>=), lower or equal(<=), or not equal to (!=) entered cost"
+					<<endl;
 				cout<<">";
 				cin>>op;
-				if(op == "=")
-					sql = "SHOW (select (cost == "+cost+") "+salesDB+");\n";
-				else if(op == ">")
-					sql = "SHOW (select (cost > "+cost+") "+salesDB+");\n";
-				else if(op == "<")
-					sql = "SHOW (select (cost < "+cost+") "+salesDB+");\n";
+				if(!isNumber(cost))
+					sql = "ERROR";
 				else
-					cout<<"\nDid not enter =,>,or < returning to main menu"<<endl;
+				{
+					if(op == "=")
+						sql = "SHOW (select (cost == "+cost+") "+salesDB+");\n";
+					else if(op == ">")
+						sql = "SHOW (select (cost > "+cost+") "+salesDB+");\n";
+					else if(op == "<")
+						sql = "SHOW (select (cost < "+cost+") "+salesDB+");\n";
+					else if (op == ">=")
+						sql = "SHOW (select (cost >= "+cost+") "+salesDB+");\n";
+					else if (op == "<=")
+						sql = "SHOW (select (cost <= "+cost+") "+salesDB+");\n";
+					else if (op == "!=")
+						sql = "SHOW (select (cost != "+cost+") "+salesDB+");\n";
+					else
+					{
+						cout<<"\nDid not enter =,>,<,>=,<=,!= returning to main menu"<<endl;
+						sql = "ERROR";
+					}
+				}
 			}
 			else
+			{
 				cout<<"\nNot '1', '2', or '3' returning to main menu"<<endl;
+				sql = "ERROR";
+			}
 		break;
 		case 3:
-			cout<<"\nSearching by customer"<<endl;
+			cout<<"\n--Searching by customer--"<<endl;
 			cout<<"Search by customer name(1), Date of Purchase(2), or Amount Owed(3)?"<<endl;
 			cout << ">";
-			cin>>subSearch;
+			cin>>subSearchSTR;
+			if(!isNumber(subSearchSTR))
+			{
+				cout << "\nSorry you didn't enter a valid input of '1', '2', or '3'" << endl;
+				search = 99;
+			}
+			else
+				subSearch = atoi(subSearchSTR.c_str());
 			if(subSearch == 1)
 			{
-				cout<<"Enter the name you would like to search for"<<endl;
-				cout<<endl;
+				cout<<"\nEnter the name you would like to search for"<<endl;
+				cout<<">";
 				cin>>customer;
 				sql = "SHOW (select (customerName == \""+customer+"\") "+salesDB+");\n";
 			}
@@ -304,7 +384,14 @@ void search()
 				dateOfPurchase = enteredDate;
 				cout<<"\nSearch for dates before(1), after(2), or on(3) the specified date?"<<endl;
 				cout<<">";
-				cin>>rangeOfDates;
+				cin>>rangeOfDatesSTR;
+				if(!isNumber(rangeOfDatesSTR))
+				{
+					cout << "\nSorry you didn't enter a valid input of '1', '2', '3', or '4'" << endl;
+					search = 99;
+				}
+				else
+					rangeOfDates = atoi(rangeOfDatesSTR.c_str());
 				if(rangeOfDates == 1)
 				{
 					sql = "SHOW (select (dateOfPurchase < "+dateOfPurchase+") "+salesDB+");\n";
@@ -324,23 +411,42 @@ void search()
 				cout<<"\nEnter the amount owed you would like to search for"<<endl;
 				cout << ">";
 				cin>>amountOwed;
-				cout<<"\nSearch for amounts owed higher(>), lower(<), or equal to (=) entered rate"<<endl;
+				cout<<"\nSearch for amounts owed higher(>), lower(<), equal to (=)"<<endl;
+				cout<<"\thigher or equal(>=), lower or equal(<=), or not equal to (!=) entered rate"
+					<<endl;
 				cout << ">";
 				cin>>op;
-				if(op == "=")
-					sql = "SHOW (select (amoutOwed == "+amountOwed+") "+salesDB+");\n";
-				else if(op == ">")
-					sql = "SHOW (select (amountOwed > "+amountOwed+") "+salesDB+");\n";
-				else if(op == "<")
-					sql = "SHOW (select (amountOwed < "+amountOwed+") "+salesDB+");\n";
+				if(!isNumber(amountOwed))
+					sql = "ERROR";
 				else
-					cout<<"\nDid not enter =,>,or < returning to main menu"<<endl;
+				{
+					if(op == "=")
+						sql = "SHOW (select (amoutOwed == "+amountOwed+") "+salesDB+");\n";
+					else if(op == ">")
+						sql = "SHOW (select (amountOwed > "+amountOwed+") "+salesDB+");\n";
+					else if(op == "<")
+						sql = "SHOW (select (amountOwed < "+amountOwed+") "+salesDB+");\n";
+					else if(op == ">=")
+						sql = "SHOW (select (amountOwed >= "+amountOwed+") "+salesDB+");\n";
+					else if(op == "<=")
+						sql = "SHOW (select (amountOwed <= "+amountOwed+") "+salesDB+");\n";
+					else if(op == "!=")
+						sql = "SHOW (select (amountOwed != "+amountOwed+") "+salesDB+");\n";
+					else
+					{
+						cout<<"\nDid not enter =,>,or < returning to main menu"<<endl;
+						sql = "ERROR";
+					}
+				}
 			}
 			else
+			{
 				cout<<"\nNot '1', '2', or '3' returning to main menu"<<endl;
+				sql = "ERROR";
+			}
 		break;
 		case 4:
-			cout<<"\nSearching by car"<<endl;
+			cout<<"\n--Searching by car--"<<endl;
 			cout<<"\nSearch by Color(1), Year(2), Model(3), or Make(4)?"<<endl;
 			cout << ">";
 			cin>>subSearch;
@@ -359,18 +465,23 @@ void search()
 				cout<<"\nSearch for years before(1), after(2), or on(3) the specified year?"<<endl;
 				cout << ">";
 				cin>>rangeOfDates;
-				if(rangeOfDates == 3)
-				{
-					sql = "SHOW (select (year == "+year+") "+ownsDB+");\n";
-				}
-				else if(rangeOfDates == 1)
-					sql = "SHOW (select (year < "+year+") "+ownsDB+");\n";
-				else if(rangeOfDates == 2)
-					sql = "SHOW (select (year > "+year+") "+ownsDB+");\n";
+				if(!isNumber(year))
+					sql = "ERROR";
 				else
 				{
-					sql = "ERROR";
-					cout<<"\nDid not enter 1, 2, or 3 returning to main menu"<<endl;
+					if(rangeOfDates == 3)
+					{
+						sql = "SHOW (select (year == "+year+") "+ownsDB+");\n";
+					}
+					else if(rangeOfDates == 1)
+						sql = "SHOW (select (year < "+year+") "+ownsDB+");\n";
+					else if(rangeOfDates == 2)
+						sql = "SHOW (select (year > "+year+") "+ownsDB+");\n";
+					else
+					{
+						sql = "ERROR";
+						cout<<"\nDid not enter 1, 2, or 3 returning to main menu"<<endl;
+					}
 				}
 			}
 			else if(subSearch == 3)
@@ -389,9 +500,18 @@ void search()
 			else
 				cout<<"\nDid not enter a '1', '2', '3', or '4' returning to main menu"<<endl;
 		break;
+		default:
+			sql = "ERROR";
+		break;
 	}
-	writePipe(sql);
-	cout<<readPipe();
+	if(sql != "ERROR")
+	{
+		cout << "\n\n";
+		writePipe(sql);
+		cout<<readPipe();
+	}
+	else
+		cerr << "Sorry there was a problem with your input please try again" << endl;
 }
 void show()
 {
