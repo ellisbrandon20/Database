@@ -281,7 +281,7 @@ void Database::insertToTable(string tableName, vector<string> literals)
     int tblIndex = getTableIndex(_dbTables, tableName);
     if(tblIndex < 0)
     {
-        cerr << "\nERROR: Can't insert records becuase the table, " << tableName 
+     		cerr<< "\nERROR: Can't insert records becuase the table, " << tableName 
              << ", does not exist in database" << endl; 
     }
     int tblAttributesSize = _dbTables[tblIndex].getTblAttributes().size();
@@ -412,7 +412,7 @@ void Database::updateTable(string tableName, string attrName, string op, vector<
 							// use this if-stmt for strings
 							if(toCompare == comp[k]){
 								UpdateRecord = true;
-								cout << "true"<<endl;
+								//cout << "true"<<endl;
 							}
 						}
 					}
@@ -1610,6 +1610,7 @@ bool Database::isUnionCompatible(Table tableLeft, Table tableRight)
 ****/
 string Database::conditionParser(string tableName, string condition)
 {
+	//cerr<<"condParse "<<condition<<endl;
 	int i = 0;
 	while(i < condition.size())
 	{
@@ -1668,6 +1669,7 @@ string Database::conditionParser(string tableName, string condition)
 ****/
 string Database::recursiveDescent(string tableName, string condition)
 {
+	//cerr<<"Recursive Descent "<<condition<<endl;
 	string Right = tableName;
 	Table temp =  _dbTables[getTableIndex(_dbTables, tableName)];
 	temp.changeTableName("temp");
@@ -1676,7 +1678,7 @@ string Database::recursiveDescent(string tableName, string condition)
 	int finish = 0;
 	int resolved = 0;
 	string pass = "";
-	int unint = 0;
+	int unionIntersection = 0;
 	int i = 0;
 	bool parIgnore = false;
 	bool stringTime = false;
@@ -1694,9 +1696,9 @@ string Database::recursiveDescent(string tableName, string condition)
 			else if((condition[i] == '&' || condition[i] == '|') && !parIgnore)
 			{
 				if(condition[i] == '|')
-					unint = 1;
+					unionIntersection = 1;
 				else
-					unint = 2;
+					unionIntersection = 2;
 				i = i+2;
 			}
 			else
@@ -1733,12 +1735,12 @@ string Database::recursiveDescent(string tableName, string condition)
 				finish = i-1;
 				if(resolved == 0)
 				{
-					if(unint == 1)
+					if(unionIntersection == 1)
 					{
 						string S = recursiveDescent("temp", condition.substr(start,finish) );
 						Right = setUnion(Right, S);
 					}
-					else if(unint == 2)
+					else if(unionIntersection == 2)
 					{
 						string S = recursiveDescent("temp", condition.substr(start,finish));
 						Right = setIntersect(Right, S);

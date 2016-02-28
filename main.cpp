@@ -20,10 +20,8 @@ int main()
 	int bytes_read;
 	while(p.getExit()==false && getline(cin, input))
 	{
-		cout<<input<<endl;
 		if(input.size()!=1)
 			p.parse(input);
 		input = "";
 	}
-	cout<<"Leaving"<<endl;
 }

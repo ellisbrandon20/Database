@@ -1,4 +1,4 @@
-|employeeName[VARCHAR(20)]||employeeID[INTEGER]||*orderID[INTEGER]||financingRate[VARCHAR(20)]||cost[INTEGER]||isPending[INTEGER]||customerName[VARCHAR(20)]||dateOfPurchase[INTEGER]||amountOwed[INTEGER]|
+|employeeName[VARCHAR(20)]||employeeID[INTEGER]||*orderID[INTEGER]||financingRate[INTEGER]||cost[INTEGER]||isPending[INTEGER]||customerName[VARCHAR(20)]||dateOfPurchase[INTEGER]||amountOwed[INTEGER]|
 |bob||01||1001||9||50000||0||Fred||01052010||50000|
 |bob||01||1002||9||300||0||Paatrick||01052015||300|
 |bob||01||1003||9||400||0||SpongeBob||01062010||400|

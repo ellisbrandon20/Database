@@ -16,6 +16,8 @@ using namespace std;
 
 int fileDescriptor_ParentToChild[2];
 int fileDescriptor_ChildToParent[2];
+string salesDB = "sales";
+string ownsDB = "owns";
 
 string readPipe()
 {
@@ -30,8 +32,8 @@ string readPipe()
 		bytes_read = read(fileDescriptor_ChildToParent[0], readbuffer, sizeof(readbuffer)-1);
 		readbuffer[bytes_read] = '\0';
 		receive_output += readbuffer;//Opened file
-		cout<<bytes_read<<endl;
-		if(bytes_read <250)
+		//cout<<bytes_read<<endl;
+		if(bytes_read <254)
 			stop = true;
 	}
 	return receive_output;
@@ -40,6 +42,52 @@ void writePipe(string s)
 {
 	write(fileDescriptor_ParentToChild[1], s.c_str(), strlen(s.c_str()));
 }
+/*void goOffline()
+{
+	string dbCommand = "CLOSE sales;\n";
+	writePipe(dbCommand);
+	readPipe();
+	dbCommand = "CLOSE owns;\n";
+	writePipe(dbCommand);
+	readPipe();
+	dbCommand = "OPEN offline_sales;\n";
+	writePipe(dbCommand);
+	readPipe();
+	dbCommand = "OPEN offline_owns;\n";
+	writePipe(dbCommand);
+	readPipe();
+	salesDB = "offline_sales";
+	ownsDB = "offline_owns";
+}
+void goOnline()
+{
+	string dbCommand = "OPEN sales;\n";
+	writePipe(dbCommand);
+	readPipe();
+	dbCommand = "OPEN owns;\n";
+	writePipe(dbCommand);
+	readPipe();
+	dbCommand = "INSERT INTO sales VALUES FROM RELATION offline_sales;\n";
+	writePipe(dbCommand);
+	readPipe();
+	dbCommand = "INSERT INTO owns VALUES FROM RELATION offline_owns;\n";
+	writePipe(dbCommand);
+	readPipe();
+	dbCommand = "offline_sales <- offline_sales - offline_sales;\n";
+	writePipe(dbCommand);
+	cout<<readPipe();
+	dbCommand = "offline_owns <- offline_owns - offline_owns;\n";
+	writePipe(dbCommand);
+	readPipe();
+	dbCommand = "CLOSE offline_sales;\n";
+	writePipe(dbCommand);
+	readPipe();
+	dbCommand = "CLOSE offline_owns;\n";
+	writePipe(dbCommand);
+	readPipe();
+	salesDB = "sales";
+	ownsDB = "owns";
+}*/
 void guarunteedOpen()
 {
 	string s = "OPEN sales;\n";
@@ -92,33 +140,36 @@ void searchForSale()
 	string orderID;
 	string customer;
 	string s;
-	cout<<"Looking up a sale"<<endl;
-	cout<<"Please enter the order ID if you know it or -1 if you do not"<<endl;
+	cout << "\n\n";
+	cout << " ---- Look up a Sale ---- " << endl;
+	cout<<"\nPlease enter the order ID if you know it or -1 if you do not"<<endl;
+	cout <<">";
 	cin>>orderID;
-	cout<<orderID<<endl;
+	//cout<<orderID<<endl;
 	if(orderID == "-1")
 	{
-		cout<<"Please enter the customer name"<<endl;
+		cout<<"\nPlease enter the customer name"<<endl;
+		cout << ">";
 		cin>>customer;
-		cout<<"Displaying all purchases made by this customer"<<endl;
+		cout<<"\nDisplaying all purchases made by this customer"<<endl;
 		s = "SHOW a <- select (customerName==\""+ customer +"\") sales;\n";
-		cout<<s<<endl;
 		writePipe(s);
 		cout<<readPipe()<<endl;
-		cout<<"Please enter the orderID of the desired purchase shown above or -1 to exit"<<endl;
+		cout<<"\nPlease enter the orderID of the desired purchase shown above or -1 to exit"<<endl;
+		cout << ">";
 		cin>>orderID;
 		if(orderID!="-1")
-			s = "SHOW a <- select (orderID=="+ orderID +") sales;\n";
+			s = "SHOW a <- select (orderID=="+ orderID +") "+salesDB+";\n";
 	}
 	else
-		s = "SHOW a <- select (orderID=="+ orderID +") sales;\n";
+		s = "SHOW a <- select (orderID=="+ orderID +") "+salesDB+";\n";
 	writePipe(s);
 	cout<<readPipe();
 }
 void search()
 {
 	int search;
-		int subSearch;
+		int subSearch, rangeOfDates;
 		string s,
 			   orderID, 
 			   employee,
@@ -133,175 +184,210 @@ void search()
 			   cost, 
 			   owed, 
 			   color,
-			   rangeOfDates,
 			   year,
 			   model,
 			   make,
-			   amountOwed;
-		char op;
-	cout<<"Search function"<<endl;
-	cout<<"Enter one of the numbers below to select a search option"<<endl;
+			   amountOwed,
+			   op;
+	cout << "\n\n";
+	cout << " ---- Search ---- " << endl;
+	cout<<"\nEnter one of the numbers below to select a search option"<<endl;
 	cout<<"1. Search by Employee"<<endl;
 	cout<<"2. Search by Order"<<endl;
 	cout<<"3. Search by Customer"<<endl;
 	cout<<"4. Search by Car"<<endl;
 	cout<<endl;
+	cout << ">";
 	cin>>search;
 	switch(search)
 	{
 		case 1:
-			cout<<"Searching by employee"<<endl;
+			cout<<"\nSearching by employee"<<endl;
 			cout<<"Search by Employee name(1) or Employee ID(2)?"<<endl;
+			cout << ">";
 			cin>>subSearch;
 			if(subSearch == 1)
 			{
-				cout<<"Enter the name you would like to search for"<<endl;
+				cout<<"\nEnter the name you would like to search for"<<endl;
+				cout << ">";
 				cin>>employee;
 				if(subSearch ==1)
-					s = "SHOW a <- select (name == \""+employee+"\") sales;\n";
+					s = "SHOW (select (employeeName == \""+employee+"\") "+salesDB+");\n";
 			}
 			else if(subSearch == 2)
 			{
-				cout<<"Enter the ID you would like to search for"<<endl;
+				cout<<"\nEnter the ID you would like to search for"<<endl;
+				cout << ">";
 				cin>>employeeID;
-				s = "SHOW a <- select employeeID == \""+employeeID+"\") sales;\n";
+				s = "SHOW (select (employeeID == "+employeeID+") "+salesDB+");\n";
 			}
 			else
 				cout<<"Not '1' or '2' returning to main menu"<<endl;
 		break;
 		case 2:
-			cout<<"Searching by order"<<endl;
+			cout<<"\nSearching by order"<<endl;
 			cout<<"Search by Order ID(1), Financing Rate(2), or Cost(3)?"<<endl;
+			cout << ">";
 			cin>>subSearch;
 			if(subSearch == 1)
 			{
-				cout<<"Enter the ID you would like to search for"<<endl;
+				cout<<"\nEnter the ID you would like to search for"<<endl;
+				cout << ">";
 				cin>>orderID;
-				s = "SHOW a <- select (orderID=="+ orderID +") sales;\n";
+				s = "SHOW (select (orderID=="+ orderID +") "+salesDB+");\n";
 			}
 			else if(subSearch == 2)
 			{
-				cout<<"Enter the Financing Rate you would like to search for"<<endl;
+				cout<<"\nEnter the Financing Rate you would like to search for"<<endl;
+				cout << ">";
 				cin>>financingRate;
-				cout<<"Search for Financing Rates higher(>), lower(<), or equal to (=) entered rate"<<endl;
+				cout<<"\nSearch for Financing Rates higher(>), lower(<), or equal to (=) entered rate"<<endl;
+				cout << ">";
 				cin>>op;
-				if(op == '=')
-					s = "SHOW a <- select (financingRate == "+financingRate+") sales;\n";
-				else if(op == '>')
-					s = "SHOW a <- select (financingRate > "+financingRate+") sales;\n";
-				else if(op == '<')
-					s = "SHOW a <- select (financingRate < "+financingRate+") sales;\n";
+				if(op == "=")
+					s = "SHOW (select (financingRate == "+financingRate+") "+salesDB+");\n";
+				else if(op == ">")
+					s = "SHOW (select (financingRate > "+financingRate+") "+salesDB+");\n";
+				else if(op == "<")
+					s = "SHOW (select (financingRate < "+financingRate+") "+salesDB+");\n";
 				else
-					cout<<"Did not enter =,>,or < returning to main menu"<<endl;
+					cout<<"\nDid not enter =,>,or < returning to main menu"<<endl;
 			}
 			else if(subSearch == 3)
 			{
-				cout<<"Enter the cost you would like to search for"<<endl;
-				cin>>financingRate;
-				cout<<"Search for financing rates higher(>), lower(<), or equal to (=) entered rate"<<endl;
+				cout<<"\nEnter the cost you would like to search for"<<endl;
+				cout << ">";
+				cin>>cost;
+				cout<<"\nSearch for financing rates higher(>), lower(<), or equal to (=) entered rate"<<endl;
+				cout<<">";
 				cin>>op;
-				if(op == '=')
-					s = "SHOW a <- select (cost == "+cost+") sales;\n";
-				else if(op == '>')
-					s = "SHOW a <- select (cost > "+cost+") sales;\n";
-				else if(op == '<')
-					s = "SHOW a <- select (cost < "+cost+") sales;\n";
+				if(op == "=")
+					s = "SHOW (select (cost == "+cost+") "+salesDB+");\n";
+				else if(op == ">")
+					s = "SHOW (select (cost > "+cost+") "+salesDB+");\n";
+				else if(op == "<")
+					s = "SHOW (select (cost < "+cost+") "+salesDB+");\n";
 				else
-					cout<<"Did not enter =,>,or < returning to main menu"<<endl;
+					cout<<"\nDid not enter =,>,or < returning to main menu"<<endl;
 			}
 			else
-				cout<<"Not '1', '2', or '3' returning to main menu"<<endl;
+				cout<<"\nNot '1', '2', or '3' returning to main menu"<<endl;
 		break;
 		case 3:
-			cout<<"Searching by customer"<<endl;
+			cout<<"\nSearching by customer"<<endl;
 			cout<<"Search by customer name(1), Date of Purchase(2), or Amount Owed(3)?"<<endl;
+			cout << ">";
 			cin>>subSearch;
 			if(subSearch == 1)
 			{
 				cout<<"Enter the name you would like to search for"<<endl;
 				cout<<endl;
 				cin>>customer;
-				s = "SHOW a <- select (name == \""+customer+"\") sales;\n";
+				s = "SHOW (select (customerName == \""+customer+"\") "+salesDB+");\n";
 			}
 			else if(subSearch == 2)
 			{
-				string dateOfPurchase;
-				cout<<"Enter the date you would like to search for"<<endl;
-				cout<<endl;
-				cin>>dateOfPurchase;
-				cout<<"Search for dates before(1), after(2), or on(3) the specified date?"<<endl;
-				cout<<endl;
-				cin>>rangeOfDates;
-				if(rangeOfDates == "on")
+				string enteredDate;
+				string dateOfPurchase = "";
+				cout<<"\nEnter the date you would like to search for in Month/Day/Year format (ex"<<endl;
+				cout<<">";
+				cin>>enteredDate;
+				for(int dateParse = 0; dateParse<enteredDate.size(); dateParse++)
 				{
-					s = "SHOW a <- select (dateOfPurchase == "+dateOfPurchase+") sales;\n";
+					if(isdigit(enteredDate[dateParse]))
+						dateOfPurchase+=enteredDate;
 				}
-				else if(rangeOfDates == "after")
-					s = "SHOW a <- select (dateOfPurchase < "+dateOfPurchase+") sales;\n";
-				else if(rangeOfDates == "before")
-					s = "SHOW a <- select (dateOfPurchase > "+dateOfPurchase+") sales;\n";
+				enteredDate = "";
+				enteredDate += dateOfPurchase.substr(4,4);
+				enteredDate += dateOfPurchase.substr(0,2);
+				enteredDate += dateOfPurchase.substr(2,2);
+				dateOfPurchase = enteredDate;
+				cout<<"\nSearch for dates before(1), after(2), or on(3) the specified date?"<<endl;
+				cout<<">";
+				cin>>rangeOfDates;
+				if(rangeOfDates == 1)
+				{
+					s = "SHOW (select (dateOfPurchase < "+dateOfPurchase+") "+salesDB+");\n";
+				}
+				else if(rangeOfDates == 2)
+					s = "SHOW (select (dateOfPurchase > "+dateOfPurchase+") "+salesDB+");\n";
+				else if(rangeOfDates == 3)
+					s = "SHOW (select (dateOfPurchase == "+dateOfPurchase+") "+salesDB+");\n";
 				else
+				{
 					cout<<"Did not enter 'on', 'before', or 'after' returning to main menu"<<endl;
+					s = "ERROR";
+				}
 			}
 			else if(subSearch == 3)
 			{
-				cout<<"Enter the amount owed you would like to search for"<<endl;
+				cout<<"\nEnter the amount owed you would like to search for"<<endl;
+				cout << ">";
 				cin>>amountOwed;
-				cout<<"Search for amounts owed higher(>), lower(<), or equal to (=) entered rate"<<endl;
+				cout<<"\nSearch for amounts owed higher(>), lower(<), or equal to (=) entered rate"<<endl;
+				cout << ">";
 				cin>>op;
-				if(op == '=')
-					s = "SHOW a <- select (amoutOwed == "+amountOwed+") sales;\n";
-				else if(op == '>')
-					s = "SHOW a <- select (amountOwed > "+amountOwed+") sales;\n";
-				else if(op == '<')
-					s = "SHOW a <- select (amountOwed < "+amountOwed+") sales;\n";
+				if(op == "=")
+					s = "SHOW (select (amoutOwed == "+amountOwed+") "+salesDB+");\n";
+				else if(op == ">")
+					s = "SHOW (select (amountOwed > "+amountOwed+") "+salesDB+");\n";
+				else if(op == "<")
+					s = "SHOW (select (amountOwed < "+amountOwed+") "+salesDB+");\n";
 				else
-					cout<<"Did not enter =,>,or < returning to main menu"<<endl;
+					cout<<"\nDid not enter =,>,or < returning to main menu"<<endl;
 			}
 			else
-				cout<<"Not '1', '2', or '3' returning to main menu"<<endl;
+				cout<<"\nNot '1', '2', or '3' returning to main menu"<<endl;
 		break;
 		case 4:
-			cout<<"Searching by car"<<endl;
-			cout<<"Search by Color(1), Year(2), Model(3), or Make(4)?"<<endl;
+			cout<<"\nSearching by car"<<endl;
+			cout<<"\nSearch by Color(1), Year(2), Model(3), or Make(4)?"<<endl;
+			cout << ">";
 			cin>>subSearch;
 			if(subSearch == 1)
 			{
-				cout<<"Enter the color you are looking for"<<endl;
+				cout<<"\nEnter the color you are looking for"<<endl;
+				cout << ">";
 				cin>>color;
-				s = "SHOW a <- select (color == \""+color+"\") sales;\n";
+				s = "SHOW (select (color == \""+color+"\") "+ownsDB+");\n";
 			}
 			else if(subSearch == 2)
 			{
-				cout<<"Enter the year you are looking for"<<endl;
+				cout<<"\nEnter the year you are looking for"<<endl;
+				cout << ">";
 				cin>>year;
-				cout<<"Search for years before(1), after(2), or on(3) the specified year?"<<endl;
+				cout<<"\nSearch for years before(1), after(2), or on(3) the specified year?"<<endl;
+				cout << ">";
 				cin>>rangeOfDates;
-				if(rangeOfDates == "on")
+				if(rangeOfDates == 3)
 				{
-					s = "SHOW a <- select (year == "+year+") sales;\n";
+					s = "SHOW (select (year == "+year+") "+ownsDB+");\n";
 				}
-				else if(rangeOfDates == "after")
-					s = "SHOW a <- select (year < "+year+") sales;\n";
-				else if(rangeOfDates == "before")
-					s = "SHOW a <- select (year > "+year+") sales;\n";
+				else if(rangeOfDates == 1)
+					s = "SHOW (select (year < "+year+") "+ownsDB+");\n";
+				else if(rangeOfDates == 2)
+					s = "SHOW (select (year > "+year+") "+ownsDB+");\n";
 				else
-					cout<<"Did not enter 'on', 'before', or 'after' returning to main menu"<<endl;
+				{
+					s = "ERROR";
+					cout<<"\nDid not enter 1, 2, or 3 returning to main menu"<<endl;
+				}
 			}
 			else if(subSearch == 3)
 			{
-				cout<<"Enter the Model you are looking for"<<endl;
+				cout<<"\nEnter the Model you are looking for"<<endl;
+				cout << ">";
 				cin>>model;
-				s = "SHOW a <- select (model == \""+model+"\") sales;\n";
+				s = "SHOW (select (model == \""+model+"\") "+ownsDB+");\n";
 			}
 			else if(subSearch == 4)
 			{
-				cout<<"Enter the Make you are looking for"<<endl;
+				cout<<"\nEnter the Make you are looking for"<<endl;
 				cin>>make;
-				s = "SHOW a <- select (make == \""+make+"\") sales;\n";
+				s = "SHOW (select (make == \""+make+"\") "+ownsDB+");\n";
 			}
 			else
-				cout<<"Did not enter a '1', '2', '3', or '4' returning to main menu"<<endl;
+				cout<<"\nDid not enter a '1', '2', '3', or '4' returning to main menu"<<endl;
 		break;
 	}
 	writePipe(s);
@@ -309,19 +395,22 @@ void search()
 }
 void show()
 {
+	cout << "\n\n";
+	cout << " ---- Show Table ---- " << endl;
 	int choice = 0;
-	cout<<"Show Sales(1), Owns(2), or both(3)?"<<endl;
+	cout<<"\nShow Sales(1), Owns(2), or both(3)?"<<endl;
+	cout << ">";
 	cin>>choice;
 	if(choice == 1 || choice == 3)
 	{
-		string s = "SHOW sales;\n";
+		string s = "SHOW "+salesDB+";\n";
 		writePipe(s);
 		cout<<readPipe();
 		cout<<endl;
 	}
 	if(choice == 2 || choice == 3)
 	{
-		string s = "SHOW owns;\n";
+		string s = "SHOW "+ownsDB+";\n";
 		writePipe(s);
 		cout<<readPipe();
 	}
@@ -330,14 +419,16 @@ void show()
 }
 void writeTable()
 {
-	string s = "WRITE sales;\n";
+	cout << "\n\n";
+	cout << " ---- Writing Table ---- " << endl;
+	string s = "WRITE "+salesDB+";\n";
 	writePipe(s);
 }
 void open()
 {
-	string s = "OPEN animals;\n";
-	writePipe(s);
-	cout<<readPipe();
+	//string s = "OPEN animals;\n";
+	//writePipe(s);
+	//cout<<readPipe();
 	/*write( fileDescriptor_ParentToChild[1], s.c_str(), strlen(s.c_str()));
 	cout<<"Looping1"<<endl;
 	usleep(1000);
@@ -348,6 +439,8 @@ void open()
 }
 void createSale()
 {
+	cout << "\n\n";
+	cout << " ---- Make A Sale ---- " << endl;
 	string customerName,
 		   orderID,
 		   car,
@@ -367,20 +460,26 @@ void createSale()
 		   todaysDate;
 	char today;
 	char status;
-	cout<<"Making a sale"<<endl;
-	cout<<"Enter name of Employee making the sale"<<endl;
+	cout<<"\nEnter name of Employee making the sale"<<endl;
+	cout << ">";
 	cin>>employeeName;
-	cout<<"Enter orderID"<<endl;
+	cout<<"\nEnter orderID"<<endl;
+	cout << ">";
 	cin>>orderID;
-	cout<<"Enter EmployeeID of Employee making the sale"<<endl;
+	cout<<"\nEnter EmployeeID of Employee making the sale"<<endl;
+	cout << ">";
 	cin>>employeeID;
-	cout<<"Enter customer name"<<endl;
+	cout<<"\nEnter customer name"<<endl;
+	cout << ">";
 	cin>>customerName;
-	cout<<"Please Enter the Cost of this transaction"<<endl;
+	cout<<"\nPlease Enter the Cost of this transaction"<<endl;
+	cout << ">";
 	cin>>cost;
-	cout<<"Please Enter the Financing Rate of this transaction"<<endl;
+	cout<<"\nPlease Enter the Financing Rate of this transaction"<<endl;
+	cout << ">";
 	cin>>financingRate;
-	cout<<"Did this transaction occur today(y/n)?"<<endl;
+	cout<<"\nDid this transaction occur today(y/n)?"<<endl;
+	cout << ">";
 	cin>>today;
 	if(today == 'y')
 	{
@@ -393,42 +492,49 @@ void createSale()
 	}
 	else
 	{
-		cout<<"Please enter the date the transaction occurec in month/day/year format (ex. 01/23/2016)"<<endl;
+		cout<<"\nPlease enter the date the transaction occurec in month/day/year format (ex. 01/23/2016)"<<endl;
+		cout << ">";
 		cin>>date;
 		for(int z =0; z<date.size(); z++)
 		{
 			if(isdigit(date[z]))
 				dateOfPurchase+=date[z];
 		}
+		string enteredDate = dateOfPurchase.substr(4,4);
+		enteredDate += dateOfPurchase.substr(0,2);
+		enteredDate += dateOfPurchase.substr(2,2);
+		dateOfPurchase = enteredDate;
 	}
-	cout<<"Is this transaction pending(y/n)?"<<endl;
+	cout<<"\nIs this transaction pending(y/n)?"<<endl;
+	cout << ">";
 	cin>>status;
 	if(status == 'y')
 		orderStatus = "1";
 	else
 		orderStatus = "0";
 	string fullSale = " (\""+employeeName+"\" , "+employeeID+" , "+orderID+" , "+financingRate+" , "+cost+" , "+orderStatus+" , \""+customerName+"\" ,"+dateOfPurchase+" , "+cost+");\n";
-	cout<<fullSale<<endl;
-	cout<<fullSale.size()<<endl;
-	cout<<"What color is the car?"<<endl;
+	cout<<"\nWhat color is the car?"<<endl;
+	cout << ">";
 	cin>>color;
-	cout<<"What year is the car?"<<endl;
+	cout<<"\nWhat year is the car?"<<endl;
+	cout << ">";
 	cin>>year;
-	cout<<"What make is it?"<<endl;
+	cout<<"\nWhat make is it?"<<endl;
+	cout << ">";
 	cin>>make;
-	cout<<"What model is it?"<<endl;
+	cout<<"\nWhat model is it?"<<endl;
+	cout << ">";
 	cin>>model;
 	string ownsConstruct = " (\""+customerName+"\" , "+dateOfPurchase+" , "+cost+" , \""+color+"\" , "+year+" , \""+model+"\" , \""+make+"\");\n";
 	//orderID++;
-	string s = "INSERT INTO sales VALUES FROM"+fullSale;
-	cout<<ownsConstruct<<endl;
+	string s = "INSERT INTO "+salesDB+" VALUES FROM"+fullSale;
 	writePipe(s);
-	s = "INSERT INTO owns VALUES FROM"+ownsConstruct;
+	s = "INSERT INTO "+ownsDB+" VALUES FROM"+ownsConstruct;
 	writePipe(s);
 	//cout<<readPipe();
-	cout<<"The sale has been entered in the database successfully"<<endl;
+	cout<<"\nThe sale has been entered in the database successfully"<<endl;
 }
-string removeSale()
+void removeSale()
 {
 	cout << "\n\n";
 	cout << " ---- Remove a pending Sale ---- " << endl;
@@ -467,12 +573,12 @@ string removeSale()
 			cout << ">";
 			cin >> orderOP;
 			
-			if(!isNumber(orderID)) return "ERROR";
-			
+			if(!isNumber(orderID)) 
+				sql="ERROR";
 			if (orderOP == "=")
-				sql = "(DELETE FROM sales WHERE (orderID == " + orderID + ")";
+				sql = "DELETE FROM "+salesDB+" WHERE (orderID == " + orderID + ")";
 			else
-				sql = "(DELETE FROM sales WHERE (orderID != " + orderID + ")";
+				sql = "DELETE FROM "+salesDB+" WHERE (orderID != " + orderID + ")";
 
 			break;
 		case 2:
@@ -480,18 +586,19 @@ string removeSale()
 			cout <<"\nWhat is the Employee ID?" << endl;
 			cout << ">";
 			cin >> employeeID;
-			if(!isNumber(employeeID)) return "ERROR";
+			if(!isNumber(employeeID)) 
+				sql="ERROR";
 			
 			//find op
-			cout << "Are you deleting records that are eqaul (=) to or not equal (!=) to Employee ID?"
+			cout << "\nAre you deleting records that are eqaul (=) to or not equal (!=) to Employee ID?"
 				 << endl;
 			cout << ">";
 			cin >> employeeIDop;
 			
 			if(employeeIDop == "=")
-				sql = "DELETE FROM sales WHERE (employeeID == " + employeeID + ")";
+				sql = "DELETE FROM "+salesDB+" WHERE (employeeID == " + employeeID + ")";
 			else
-				sql = "DELETE FROM sales WHERE (employeeID != " + employeeID + ")";
+				sql = "DELETE FROM "+salesDB+" WHERE (employeeID != " + employeeID + ")";
 			
 			break;
 		case 3:
@@ -501,15 +608,15 @@ string removeSale()
 			cin >> customer;
 			
 			//find op
-			cout << "Are you deleting records that are eqaul (=) to or not equal (!=) to Customer name?"
+			cout << "\nAre you deleting records that are eqaul (=) to or not equal (!=) to Customer name?"
 				 << endl;
 			cout << ">";
 			cin >> customerOP;
 			
 			if(customerOP == "=")
-				sql = "DELETE FROM sales WHERE (customerName == " + customer + ")";
+				sql = "DELETE FROM "+salesDB+" WHERE (customerName == " + customer + ")";
 			else
-				sql = "DELETE FROM sales WHERE (customerName != " + customer + ")";
+				sql = "DELETE FROM "+salesDB+" WHERE (customerName != " + customer + ")";
 
 			break;
 		case 4:
@@ -519,27 +626,31 @@ string removeSale()
 			cin >> model;
 			
 			//find op
-			cout << "Are you deleting records that are eqaul (=) to or not equal (!=) to Model name"
+			cout << "\nAre you deleting records that are eqaul (=) to or not equal (!=) to Model name"
 				 << endl;
 			cout << ">";
 			cin >> modelOP;
 			
 			if(modelOP == "=")
-				sql = "DELETE FROM sales WHERE (model == " + model + ")";
+				sql = "DELETE FROM "+salesDB+" WHERE (model == " + model + ")";
 			else
-				sql = "DELETE FROM sales WHERE (model != " + model + ")";
+				sql = "DELETE FROM "+salesDB+" WHERE (model != " + model + ")";
 	
 			break;
 		default:
 			break;
 			
 	}
-	string sqltosend = sql + ";\n";
-	writePipe(sql);
+	if(sql != "ERROR")
+	{
+		string sqltosend = sql + ";\n";
+		writePipe(sqltosend);
+	}
+	else
+		cerr << "ERROR you entered some wrong data, please re-run this command and try again" << endl;
 }
 string employeeStatsAttribute(char attribute)
 {
-	//cout << "attr # " << attribute << endl;
 	if (attribute == '0')
 		return "orderID";
 	else if (attribute == '1')
@@ -582,7 +693,7 @@ void employeeStats()
 		if(!isNumber(employeeID)) 
 			cerr<<"ERROR"<<endl;
 		
-		joinedTBL = "(sales JOIN owns)";
+		joinedTBL = "("+salesDB+" JOIN owns)";
 		selectJoinedTBL = "(select (employeeID == " + employeeID 
 								+ ") " + joinedTBL + ")";
 	}
@@ -593,13 +704,13 @@ void employeeStats()
 		string employeeName;
 		cin >> employeeName;
 		
-		joinedTBL = "(sales JOIN owns)";
+		joinedTBL = "("+salesDB+" JOIN owns)";
 		selectJoinedTBL = "(select (employeeName == \"" + employeeName 
 								+ "\") " + joinedTBL + ")";
 	}
 	else
 	{
-		cout << "Sorry you did not enter valid input we were looking for \"1\" or \"2\"" << endl;
+		cout << "\nSorry you did not enter valid input we were looking for \"1\" or \"2\"" << endl;
 		//return "ERROR";
 	}
 		//find out what the user wants to project
@@ -660,7 +771,7 @@ void employeeStats()
 		//cout << "SQL STATEMENT: ";
 		string sql = "project " + listAttributes + " " + selectJoinedTBL;
 		string sqltosend;
-		cout << "SQL: "<<sql << endl;
+		//cout << "SQL: "<<sql << endl;
 		if(sql == "ERROR" || flag)
 		{
 			cerr << "ERROR on input validation try again" << endl;
@@ -669,7 +780,6 @@ void employeeStats()
 		else
 		{
 			sqltosend = "SHOW (" + sql + ");\n";
-			cout<<sqltosend<<endl;
 			writePipe(sqltosend);
 			cout<<readPipe();
 		}
@@ -691,7 +801,7 @@ void CompareEmployeeStats()
 	
 	if(search == "1")
 	{
-		joinedTBL = "(sales JOIN owns)";
+		joinedTBL = "("+salesDB+" JOIN owns)";
 		
 		cout << "\nPlease enter the first Employee's ID" << endl;
 		cout << ">";
@@ -718,7 +828,7 @@ void CompareEmployeeStats()
 	}
 	else if (search == "2")
 	{
-		joinedTBL = "(sales JOIN owns)";
+		joinedTBL = "("+salesDB+" JOIN owns)";
 		
 		cout << "\nPlease enter the first Employee's Name" << endl;
 		cout << ">";
@@ -818,6 +928,55 @@ void CompareEmployeeStats()
 			//cout<<"FINISHED READING"<<endl;
 		}
 }
+void updateAmountOwed()
+{
+	string sql;
+	cout << "\n\n";
+	cout << " ---- Update Customer Amount Owed ---- " << endl;
+	cout << "\nWhat is the Customer's Name?" << endl;
+	cout << ">";
+	string customerName;
+	cin >> customerName;
+	
+	cout << "\nWhat is the Date of Purchase? month/day/year (01/05/1990)" << endl;
+	cout << ">";
+	string date;
+	cin >> date;
+	string dateOfPurchase;
+	for(int z =0; z<date.size(); z++)
+	{
+		if(isdigit(date[z]))
+			dateOfPurchase+=date[z];
+	}
+	string enteredDate = dateOfPurchase.substr(4,4);
+	//cout<<enteredDate<<endl;
+	enteredDate += dateOfPurchase.substr(0,2);
+	//cout<<enteredDate<<endl;
+	enteredDate += dateOfPurchase.substr(2,2);
+	//cout<<enteredDate<<endl;
+	dateOfPurchase = enteredDate;
+	
+	cout << "\nWhat is the new amount that this customer owes?"<<endl;
+	cout << ">";
+	string amountOwed;
+	cin >> amountOwed;
+	
+	sql = "UPDATE owns SET amountOwed = " +amountOwed+" WHERE (customerName == \"" +customerName+ "\" && dateOfPurchase == " + dateOfPurchase + ");\n";
+	
+	
+	if(!isNumber(amountOwed))
+		sql = "ERROR";
+	
+	if(sql != "ERROR")
+	{
+		writePipe(sql);
+		cout<<readPipe();
+	}
+	else
+		cerr << "ERROR you entered wrong information for the Update Customer Amount Owed" << endl;
+	
+}
+
 int main()
 {	
 	//readbuffer[255] = ' ';
@@ -840,7 +999,6 @@ int main()
 
 		//Execute the required program
 		execvp("./main", NULL);
-		cout<<"Child is exiting"<<endl;
 		exit(0);
 	}
 	else
@@ -849,8 +1007,11 @@ int main()
 		close(fileDescriptor_ChildToParent[1]);//close write end of pFc
 		guarunteedOpen();
 		string choice = "0";
-		while(stoi(choice) !=8)
+		while(stoi(choice) !=9)
 		{
+			cout << "\n\n";
+			cout << "------------------------- MENU -------------------------" << endl;
+			cout << "--------------------------------------------------------" << endl;
 			cout<<"List of available commands"<<endl;
 			cout<<"Please enter the number of the desired command"<<endl;
 			cout<<"0. Show Table (For Debugging will not be in final project)"<<endl;
@@ -861,13 +1022,18 @@ int main()
 			cout<<"5. Look up a sale"<<endl;
 			cout<<"6. Search by name/model/employee/etc."<<endl;
 			cout<<"7. Remove a pending Sale" << endl;
-			cout<<"8. Expand Dealership/ getLargeInventory"<<endl;
+			//cout<<"8. Switch between offline/online modes"<<endl;
+			cout<<"8. Update Amount Owed with a Customer"<<endl;
 			cout<<"9. Quit"<<endl;
-			cout<<endl;
+			cout << "--------------------------------------------------------" << endl;
+			cout << "--------------------------------------------------------" << endl;
+			cout << "\n" << endl;
+			cout << ">";
 			cin>>choice;
 			while(!isNumber(choice))
 			{
 				cout<<"Comon man, enter a number"<<endl;
+				cout << ">";
 				cin>>choice;
 			}
 			string sql1 = "";
@@ -899,18 +1065,27 @@ int main()
 					removeSale();
 				break;
 				case 8:
+					/*if(salesDB == "offline_sales")
+					{
+						cout<<"Going online"<<endl;
+						goOnline();
+					}
+					else
+					{
+						cout<<"Going offline"<<endl;
+						goOffline();
+					}*/
+					updateAmountOwed();
 				break;
 				case 9:
 					writePipe("EXIT;\n");
-					cout<<"Sending Request"<<endl;
-					readPipe();
 					readPipe();
 				break;
 				case 10:
 					writeTable();
 				break;
 				default:
-					cerr << "WHAT ARE YOU THINKING BILLY" << endl;
+					cerr << "Sorry this is not a command" << endl;
 				break;
 			}
 		}

@@ -18,6 +18,12 @@ INSERT INTO animals2 VALUES FROM ("Snoopy", "panda", 3);
 INSERT INTO animals2 VALUES FROM ("Tweety", "panda", 111);
 SHOW animals;
 SHOW animals2;
+
+UPDATE animals SET years = 88 WHERE (years == 1);
+SHOW animals;
+
+EXIT;
+
 selectTest1<-select(kind=="bird")animals;
 selectTest2<-select(kind=="bird" || kind == "dog")animals;
 selectTest3<-select(kind=="bird" || kind == "dog" && years > 3)animals;
@@ -53,9 +59,6 @@ crossProductTest4<-(project (years) animals) * (select(years >3) (project (years
 crossProductTest5<-((project(years) animals) * (project(kind) animals));
 naturalJoinTest1<-animals JOIN animals2;
 naturalJoinTest2<-(project(name) animals) JOIN (project(aname,kind) (rename (aname) animals2));
-EXIT;
-
-
 
  // CHANGE ATTR NAME IN CREATE TABLE TO "ANAME
 

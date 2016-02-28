@@ -9,9 +9,6 @@
 void Parser::parse(string input)
 {
 	tokens.clear();
-	//if(input.size()>0)
-	//cout << "input: " << input << endl;
-	//cerr << "input: " << input << endl;
 	string reserveWord;
 	storedInput = input;	
 	commandAlreadyProcessed = false;
@@ -101,7 +98,10 @@ void Parser::parse(string input)
 			string newTblName = "";
 			if(insertFromRelation)
 			{
-				newTblName = Query();
+				if(tokens.size() >3)
+					newTblName = Query();
+				else
+					newTblName = tokens[0];
 				vector<Record> records = db.getTableByName(newTblName)->getTblRecords();
 				for(int x = 0; x<records.size(); x++)
 				{
@@ -140,7 +140,6 @@ void Parser::parse(string input)
 			}
 			else
 			{
-				cerr<<"Came Here"<<endl;
 				newTblName = Query();
 				Table* newTbl = db.getTableByName(newTblName);
 				bool hasSpace = false;
@@ -148,22 +147,16 @@ void Parser::parse(string input)
 				{
 					if(isspace(newTblName.at(c)))
 					{
-						cerr<<"has space :("<<endl;
-						cerr<<newTblName<<" "<<c<<newTblName[c]<<endl;
 						hasSpace = true;
 						break;
 					}
 				}
-				cerr<<newTblName<<endl;
+				//db.getTableByName(newTblName)->setQuery(false);
 				if(hasSpace)
 				{
 					//newTbl->changeTableName(tokens[0]);
 					//newTblName = tokens[0];
 				}
-				cerr<<showCommand<<" "<<newTblName<<endl;
-				cerr<<"Left with tokens"<<endl;
-				for(int x = 0; x<tokens.size(); x++)
-					cerr<<tokens[x]<<endl;
 			}
 			if(showCommand)
 			{
@@ -172,7 +165,12 @@ void Parser::parse(string input)
 		}
 		else
 		{
-			db.show(tokens[0]);
+			if(insertFromRelation)
+			{
+				
+			}
+			else
+				db.show(tokens[0]);
 		}
 		
 	}
@@ -215,10 +213,8 @@ string Parser::Query()
 		}
 		else if(tokens[tokenIndex] == "project")
 		{
-			cerr<<"Calling project"<<endl;
 			++tokenIndex;
 			tblName = callProject();
-			cerr<<tblName<<endl;
 			return tblName;
 		}
 		else if(tokens[tokenIndex] == "naturalJoin")
@@ -522,7 +518,6 @@ string Parser::callProject()
 	{
 		tblName = tokens[tokenIndex];
 		//tokens[tokenIndex] = tblName;
-		cerr << "tbl:" << tblName << endl;
 		tokenIndex++;
 		if(tokens[tokenIndex] == ")")// && startDelimiter != -1)
 		{	
@@ -947,6 +942,7 @@ bool Parser::isReserveWord(string reserveWord)
 	}
 	else if(reserveWord == "SET")
 	{
+		tokens.push_back("(");
 		while(!isReserveWord(readIdentifier()))
 		{
 			if(lastIdentifier!="")
@@ -962,6 +958,7 @@ bool Parser::isReserveWord(string reserveWord)
 			else
 				position++;
 		}
+		tokens.push_back(")");
 	}
 	else if(reserveWord == "WHERE")
 	{
@@ -1037,6 +1034,7 @@ string Parser::parseCondition()
 		condition+=*position;
 		++position;
 	}
+	condition = injectParen(condition);
 	return condition;
 }
 /****

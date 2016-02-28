@@ -1,4 +1,4 @@
-|*aname[VARCHAR(20)]||*kind[VARCHAR(8)]||years[INTEGER]|
+|*name[VARCHAR(20)]||*kind[VARCHAR(8)]||years[INTEGER]|
 |Joe||t\|ger||2|
 |BILLY||lion||4|
 |Spot||t\|ger||10|
