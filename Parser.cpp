@@ -9,9 +9,6 @@
 void Parser::parse(string input)
 {
 	tokens.clear();
-	if(input.size()>0)
-	cout << "input: " << input << endl;
-	cerr << "input: " << input << endl;
 	string reserveWord;
 	storedInput = input;	
 	commandAlreadyProcessed = false;
@@ -101,7 +98,10 @@ void Parser::parse(string input)
 			string newTblName = "";
 			if(insertFromRelation)
 			{
-				newTblName = Query();
+				if(tokens.size() >3)
+					newTblName = Query();
+				else
+					newTblName = tokens[0];
 				vector<Record> records = db.getTableByName(newTblName)->getTblRecords();
 				for(int x = 0; x<records.size(); x++)
 				{
@@ -114,6 +114,7 @@ void Parser::parse(string input)
 				newTblName = db.setDifference(storedTable, newTblName);
 				db.dropTable(storedTable);
 				db.getTableByName(newTblName)->changeTableName(storedTable);
+				db.getTableByName(storedTable)->setQuery(false);
 			}
 			else if(update)
 			{
@@ -129,35 +130,49 @@ void Parser::parse(string input)
 				newTblName = db.updateTable(combine, newTblName, attr, lit);
 				db.dropTable(storedTable);
 				db.getTableByName(newTblName)->changeTableName(storedTable);
+				db.getTableByName(storedTable)->setQuery(false);
 			
 			}
 			else if(tokens[3] == ";")
 			{
 				db.getTableByName(tokens[2])->changeTableName(tokens[0]);
+				
 			}
 			else
 			{
 				newTblName = Query();
 				Table* newTbl = db.getTableByName(newTblName);
-					bool hasSpace = false;
-					for(int c = 0; c < newTblName.size(); c++)
+				bool hasSpace = false;
+				for(int c = 0; c < newTblName.size(); c++)
+				{
+					if(isspace(newTblName.at(c)))
 					{
-						if(isspace(newTblName.at(c)))
-						{
-							hasSpace = true;
-							break;
-						}
+						hasSpace = true;
+						break;
 					}
-					if(!hasSpace)
-					{
-						newTbl->changeTableName(tokens[0]);
-					}
+				}
+				//db.getTableByName(newTblName)->setQuery(false);
+				if(hasSpace)
+				{
+					//newTbl->changeTableName(tokens[0]);
+					//newTblName = tokens[0];
+				}
 			}
 			if(showCommand)
-				db.show(tokens[0]);
+			{
+				db.show(newTblName);
+			}
 		}
 		else
-			db.show(tokens[0]);
+		{
+			if(insertFromRelation)
+			{
+				
+			}
+			else
+				db.show(tokens[0]);
+		}
+		
 	}
 
 	db.dropQueryVec();
@@ -369,7 +384,7 @@ string Parser::callSetDifference()
 		++tokenIndex;
 		rhsTblName = Query();
 		//replace tokens[startDelimiter] with tblName
-		tokens[startDelimiter] = tblName;
+		tokens[startDelimiter] = rhsTblName;
 		//erase everything up to endDelimeter
 		tokens.erase(tokens.begin()+startDelimiter+1, tokens.begin()+endDelimiter+1);
 		tokenIndex =startDelimiter+1;
@@ -502,12 +517,18 @@ string Parser::callProject()
 	else
 	{
 		tblName = tokens[tokenIndex];
+		//tokens[tokenIndex] = tblName;
 		tokenIndex++;
 		if(tokens[tokenIndex] == ")")// && startDelimiter != -1)
 		{	
 			endDelimiter = tokenIndex;
 		}
 		endDelimiter = tokenIndex;
+		
+		/*for(int z = 0; )
+		{
+			
+		}*/
 	}
 	string retName = db.projection(tblName, attrList);
 	return retName;
@@ -807,10 +828,10 @@ vector<string> Parser::parseArgs()
 	{
 		if(*position == '"' && start == -1)
 		{
-			start = iter;
+			start = 1;
 			++iter;
 			++position;
-			currentArg+='"';
+			currentArg='"';
 		}
 		else if(start != -1 && *position == '"')
 		{
@@ -821,17 +842,17 @@ vector<string> Parser::parseArgs()
 		}
 		else if(start!= -1 && *position != ',' && *position!=')' && *position != ';' && *position!=' ')
 		{
-				currentArg+= (*position);
-				++iter;
-				++position;
+			currentArg+= (*position);
+			++iter;
+			++position;
 		}
 		else if(start!=-1 && (*position == ',' || *position == ')' || *position ==';'))
 		{
 			if(start != 0)
-				currentArg = currentArg.substr(start,end-2);	
+				currentArg = currentArg.substr(start,end-1);	
 			else
 				currentArg = currentArg.substr(start,end-1);
-			args.push_back(currentArg);
+			args.push_back(currentArg);		
 			currentArg = "";
 			iter = 0;
 			start = -1;
@@ -840,16 +861,20 @@ vector<string> Parser::parseArgs()
 		}
 		else if(isdigit(*position))
 		{
-			while(!(*position == ',' || *position == ')' || *position ==';'))
+			while(isdigit(*position))
 			{
 				currentArg += *position;
 				++position;
 			}
 			args.push_back(currentArg);
+			iter = 0;
+			currentArg = "";
+			start = -1;
+			end = -1;
 		}
 		else
 		{
-			++iter;
+			//++iter;
 			++position;
 		}
 	
@@ -917,6 +942,7 @@ bool Parser::isReserveWord(string reserveWord)
 	}
 	else if(reserveWord == "SET")
 	{
+		tokens.push_back("(");
 		while(!isReserveWord(readIdentifier()))
 		{
 			if(lastIdentifier!="")
@@ -932,6 +958,7 @@ bool Parser::isReserveWord(string reserveWord)
 			else
 				position++;
 		}
+		tokens.push_back(")");
 	}
 	else if(reserveWord == "WHERE")
 	{
@@ -1007,6 +1034,7 @@ string Parser::parseCondition()
 		condition+=*position;
 		++position;
 	}
+	condition = injectParen(condition);
 	return condition;
 }
 /****

@@ -27,6 +27,7 @@ Database::~Database()
     _dbTables.clear();
 }
 
+
 //functions
 /****
 		The openTable() function accepts a name of a table as an argument to open a .db file that has 
@@ -47,7 +48,7 @@ void Database::openTable(string tableName)
     }
     else
     {
-		cout << "Opened file " << file << endl;
+		//cout<< "Opened file " << file << endl;
     	// load information from file into vectors
     	vector<Attribute> attributes;
     	getAttributesInFile(inputFile, attributes);
@@ -103,7 +104,8 @@ void Database::closeTable(string tableName)
 ****/
 void Database::writeTable(string tableName)
 {
-	ofstream outputFile;
+	ofstream outputFile(DBFILEPATH+tableName + ".db", ofstream::trunc);
+	
     int tblIndex = getTableIndex(_dbTables, tableName);   
     if(tblIndex < 0)
     {
@@ -112,8 +114,13 @@ void Database::writeTable(string tableName)
     else
     {
 		string file = DBFILEPATH + tableName + ".db";
-		outputFile.open(file.c_str());
-        // temporary table object
+        if(!outputFile)
+		{
+
+			cerr<<"Problem creating file"<<endl;
+			
+		}
+		// temporary table object
         Table tempTable = _dbTables[tblIndex];
         vector<Attribute> tblAttributes = tempTable.getTblAttributes();
         // Checking for "|" 
@@ -181,7 +188,7 @@ void Database::show(string tableName)
 			if(tblAttributes[i].getKey())
 				attributeName.insert(0,"*");
             string attribute = attributeName + "[" + attributeType + "]";
-            cout << setw(20) << left << attribute;
+            cout << setw(25) << left << attribute;
         }
         cout << '\n';     
         // print the records values
@@ -190,7 +197,7 @@ void Database::show(string tableName)
         {
             vector<string> currRecord = tblRecords[i].getRecord(); 
             for(int j = 0; j < currRecord.size(); j++)
-                cout << setw(20) << left << currRecord[j];
+                cout << setw(25) << left << currRecord[j];
             cout << '\n';
         }
     }
@@ -243,6 +250,7 @@ void Database::createTable(string tableName, vector<string> attributeList, vecto
         // create the table
         vector<Record> empty; 
         Table newTable(tableName, attributes, empty);
+		//cout<<"Inserting new table tableName"<<endl;
         _dbTables.push_back(newTable);
     }
     else{
@@ -273,7 +281,7 @@ void Database::insertToTable(string tableName, vector<string> literals)
     int tblIndex = getTableIndex(_dbTables, tableName);
     if(tblIndex < 0)
     {
-        cerr << "\nERROR: Can't insert records becuase the table, " << tableName 
+     		cerr<< "\nERROR: Can't insert records becuase the table, " << tableName 
              << ", does not exist in database" << endl; 
     }
     int tblAttributesSize = _dbTables[tblIndex].getTblAttributes().size();
@@ -404,7 +412,7 @@ void Database::updateTable(string tableName, string attrName, string op, vector<
 							// use this if-stmt for strings
 							if(toCompare == comp[k]){
 								UpdateRecord = true;
-								cout << "true"<<endl;
+								//cout << "true"<<endl;
 							}
 						}
 					}
@@ -668,10 +676,10 @@ void Database::deleteFromTable(string tableName, string attrName, string op, vec
 						else
 						{
 							// use this if-stmt for strings
-							cout << toCompare << " != " << comp[k] << endl;
+							//cout << toCompare << " != " << comp[k] << endl;
 							if(toCompare != comp[k]){
 								deleteRecord = true;
-								cout <<"true"<<endl;
+								//cout <<"true"<<endl;
 							}
 							else
 								skip = true;
@@ -1185,7 +1193,7 @@ string Database::projection(string tableName, vector<string> projAttr)
 		}
 		if(attr.size() == 0)
 		{
-			cout << "\nERROR: No attributes matched with the passed names"<<endl;
+			cerr << "\nERROR: No attributes matched with the passed names"<<endl;
 			return "ERROR projection"; // return this as table no table name can have spaces
 		}
 		else
@@ -1602,6 +1610,7 @@ bool Database::isUnionCompatible(Table tableLeft, Table tableRight)
 ****/
 string Database::conditionParser(string tableName, string condition)
 {
+	//cerr<<"condParse "<<condition<<endl;
 	int i = 0;
 	while(i < condition.size())
 	{
@@ -1660,6 +1669,7 @@ string Database::conditionParser(string tableName, string condition)
 ****/
 string Database::recursiveDescent(string tableName, string condition)
 {
+	//cerr<<"Recursive Descent "<<condition<<endl;
 	string Right = tableName;
 	Table temp =  _dbTables[getTableIndex(_dbTables, tableName)];
 	temp.changeTableName("temp");
@@ -1668,7 +1678,7 @@ string Database::recursiveDescent(string tableName, string condition)
 	int finish = 0;
 	int resolved = 0;
 	string pass = "";
-	int unint = 0;
+	int unionIntersection = 0;
 	int i = 0;
 	bool parIgnore = false;
 	bool stringTime = false;
@@ -1686,9 +1696,9 @@ string Database::recursiveDescent(string tableName, string condition)
 			else if((condition[i] == '&' || condition[i] == '|') && !parIgnore)
 			{
 				if(condition[i] == '|')
-					unint = 1;
+					unionIntersection = 1;
 				else
-					unint = 2;
+					unionIntersection = 2;
 				i = i+2;
 			}
 			else
@@ -1725,12 +1735,12 @@ string Database::recursiveDescent(string tableName, string condition)
 				finish = i-1;
 				if(resolved == 0)
 				{
-					if(unint == 1)
+					if(unionIntersection == 1)
 					{
 						string S = recursiveDescent("temp", condition.substr(start,finish) );
 						Right = setUnion(Right, S);
 					}
-					else if(unint == 2)
+					else if(unionIntersection == 2)
 					{
 						string S = recursiveDescent("temp", condition.substr(start,finish));
 						Right = setIntersect(Right, S);
