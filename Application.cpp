@@ -802,6 +802,9 @@ void employeeStats()
 void CompareEmployeeStats()
 {
 	string sql;
+	bool flag = false;
+	string sqltosend;
+	string listAttributes;
 	cout << "\n\n";
 	cout << " ---- Compare Employee Stats ---- " << endl;
 	cout << "\nDo you want to search by Employee ..." << endl;
@@ -866,7 +869,8 @@ void CompareEmployeeStats()
 		cout << "Sorry you did not enter valid input we were looking for \"1\" or \"2\"" << endl;
 		sql="ERROR";
 	}
-		
+	if(sql != "ERROR")
+	{
 		//find out what the user wants to project
 		vector<string> VECattributes;
 		VECattributes.push_back("0. Order ID");
@@ -891,7 +895,7 @@ void CompareEmployeeStats()
 		cin.ignore();
 		getline(cin, attribute);
 		string::iterator iter = attribute.begin();
-		bool flag = false;
+		
 		while(iter != attribute.end())
 		{
 			if(*iter == ' '){
@@ -913,7 +917,7 @@ void CompareEmployeeStats()
 
 		
 		//============================
-		string listAttributes = "(";
+		listAttributes = "(";
 		for(int j = 0; j < projectAttributes.size(); j++)
 		{
 			listAttributes += projectAttributes[j];
@@ -921,7 +925,8 @@ void CompareEmployeeStats()
 				listAttributes += ",";
 		}
 		listAttributes += ")";
-		
+	}
+	
 		if(sql == "ERROR" || flag)
 		{
 			cerr << "ERROR on input validation try again" << endl;
@@ -934,7 +939,7 @@ void CompareEmployeeStats()
 			//cout << "e1: " << employee1Sql << endl;
 			//cout << "e2: " << employee2Sql << endl;
 			//cout << "sql: " << sql << endl;
-			string sqltosend = "SHOW (" + sql + ");\n";
+			sqltosend = "SHOW (" + sql + ");\n";
 			//cout<<sqltosend<<endl;
 			//cout<<"WRITING"<<endl;
 			writePipe(sqltosend);
@@ -1111,6 +1116,6 @@ int main()
 				break;
 			}
 		}
-		cout<<"Goodbye, have a great day and thanks for using our program"<<endl;
+		cout<<"\n\nGoodbye, have a great day and thanks for using our program"<<endl;
 	}
 }

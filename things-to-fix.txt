@@ -1,0 +1,5 @@
+things to fix
+
+- make a sale
+		Doesn't put in date correctly
+		
