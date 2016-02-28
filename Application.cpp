@@ -369,41 +369,50 @@ void search()
 			{
 				string enteredDate;
 				string dateOfPurchase = "";
-				cout<<"\nEnter the date you would like to search for in Month/Day/Year format (ex"<<endl;
+				cout<<"\nEnter the date you would like to search for in "
+						"Month/Day/Year format (ex: 01/05/1990)"<<endl;
 				cout<<">";
 				cin>>enteredDate;
 				for(int dateParse = 0; dateParse<enteredDate.size(); dateParse++)
 				{
 					if(isdigit(enteredDate[dateParse]))
-						dateOfPurchase+=enteredDate;
+						dateOfPurchase+=enteredDate[dateParse];
 				}
-				enteredDate = "";
-				enteredDate += dateOfPurchase.substr(4,4);
-				enteredDate += dateOfPurchase.substr(0,2);
-				enteredDate += dateOfPurchase.substr(2,2);
-				dateOfPurchase = enteredDate;
-				cout<<"\nSearch for dates before(1), after(2), or on(3) the specified date?"<<endl;
-				cout<<">";
-				cin>>rangeOfDatesSTR;
-				if(!isNumber(rangeOfDatesSTR))
-				{
-					cout << "\nSorry you didn't enter a valid input of '1', '2', '3', or '4'" << endl;
-					search = 99;
-				}
-				else
-					rangeOfDates = atoi(rangeOfDatesSTR.c_str());
-				if(rangeOfDates == 1)
-				{
-					sql = "SHOW (select (dateOfPurchase < "+dateOfPurchase+") "+salesDB+");\n";
-				}
-				else if(rangeOfDates == 2)
-					sql = "SHOW (select (dateOfPurchase > "+dateOfPurchase+") "+salesDB+");\n";
-				else if(rangeOfDates == 3)
-					sql = "SHOW (select (dateOfPurchase == "+dateOfPurchase+") "+salesDB+");\n";
-				else
-				{
-					cout<<"Did not enter 'on', 'before', or 'after' returning to main menu"<<endl;
+				if(!isNumber(dateOfPurchase) || dateOfPurchase.size() < 8)
 					sql = "ERROR";
+				else
+				{
+					enteredDate = "";
+					enteredDate += dateOfPurchase.substr(4,4);
+					enteredDate += dateOfPurchase.substr(0,2);
+					enteredDate += dateOfPurchase.substr(2,2);
+					dateOfPurchase = enteredDate;
+					
+					//cout << "DATE SEARCHING FOR: " << dateOfPurchase << endl;
+					
+					cout<<"\nSearch for dates before(1), after(2), or on(3) the specified date?"<<endl;
+					cout<<">";
+					cin>>rangeOfDatesSTR;
+					if(!isNumber(rangeOfDatesSTR))
+					{
+						cout << "\nSorry you didn't enter a valid input of '1', '2', '3', or '4'" << endl;
+						search = 99;
+					}
+					else
+						rangeOfDates = atoi(rangeOfDatesSTR.c_str());
+					if(rangeOfDates == 1)
+					{
+						sql = "SHOW (select (dateOfPurchase < "+dateOfPurchase+") "+salesDB+");\n";
+					}
+					else if(rangeOfDates == 2)
+						sql = "SHOW (select (dateOfPurchase > "+dateOfPurchase+") "+salesDB+");\n";
+					else if(rangeOfDates == 3)
+						sql = "SHOW (select (dateOfPurchase == "+dateOfPurchase+") "+salesDB+");\n";
+					else
+					{
+						cout<<"Did not enter '1', '2', or '3' returning to main menu"<<endl;
+						sql = "ERROR";
+					}
 				}
 			}
 			else if(subSearch == 3)
@@ -449,7 +458,14 @@ void search()
 			cout<<"\n--Searching by car--"<<endl;
 			cout<<"\nSearch by Color(1), Year(2), Model(3), or Make(4)?"<<endl;
 			cout << ">";
-			cin>>subSearch;
+			cin>>subSearchSTR;
+			if(!isNumber(subSearchSTR))
+			{
+				cout << "\nSorry you didn't enter a valid input of '1', '2', '3', or '4'" << endl;
+				search = 99;
+			}
+			else
+				subSearch = atoi(subSearchSTR.c_str());
 			if(subSearch == 1)
 			{
 				cout<<"\nEnter the color you are looking for"<<endl;
@@ -464,7 +480,15 @@ void search()
 				cin>>year;
 				cout<<"\nSearch for years before(1), after(2), or on(3) the specified year?"<<endl;
 				cout << ">";
-				cin>>rangeOfDates;
+				string rangeOfDatesSTR;
+				cin>>rangeOfDatesSTR;
+				if(!isNumber(rangeOfDatesSTR))
+				{
+					cout << "\nSorry you didn't enter a valid input of '1', '2', '3', or '4'" << endl;
+					search = 99;
+				}
+				else
+					rangeOfDates = atoi(rangeOfDatesSTR.c_str());
 				if(!isNumber(year))
 					sql = "ERROR";
 				else
@@ -498,7 +522,9 @@ void search()
 				sql = "SHOW (select (make == \""+make+"\") "+ownsDB+");\n";
 			}
 			else
-				cout<<"\nDid not enter a '1', '2', '3', or '4' returning to main menu"<<endl;
+			{
+				sql = "ERROR";
+			}
 		break;
 		default:
 			sql = "ERROR";
@@ -610,9 +636,14 @@ void createSale()
 		time_t t = time(0);   // get time now
 		struct tm * now = localtime( & t );
         todaysDate += to_string(now->tm_mon + 1);
+		if(todaysDate.size()<2)
+			todaysDate="0"+todaysDate;
         todaysDate += to_string(now->tm_mday);
 		todaysDate += to_string(now->tm_year + 1900);
-		dateOfPurchase = todaysDate;
+		string enteredDate = todaysDate.substr(4,4);
+		enteredDate += todaysDate.substr(0,2);
+		enteredDate += todaysDate.substr(2,2);
+		dateOfPurchase = enteredDate;
 	}
 	else
 	{
@@ -671,10 +702,17 @@ void removeSale()
 	cout << "1. Order ID" << endl;
 	cout << "2. Employee" << endl;
 	cout << "3. Customer" << endl;
-	cout << "4. Model" << endl;
 	cout << ">";
 	int deleteCommand;
-	cin >> deleteCommand;
+	string deleteCommandSTR;
+	cin >> deleteCommandSTR;
+	if(!isNumber(deleteCommandSTR))
+	{
+		cout << "\nSorry you didn't enter a valid input of '1', '2', or '3'" << endl;
+		deleteCommand = 99;
+	}
+	else
+		deleteCommand = atoi(deleteCommandSTR.c_str());
 	
 	string sql = "";
 	string orderID = "";
@@ -683,8 +721,8 @@ void removeSale()
 	string employeeIDop = "";
 	string customerOP = "";
 	string customer = "";
-	string model = "";
-	string modelOP = "";
+	//string model = "";
+	//string modelOP = "";
 	//string require = ""; // if == "yes" place "&&" in the sql otherwise place "||" in sql
 	//string require2 = ""; // if == "yes" place "&&" in the sql otherwise place "||" in sql
 	
@@ -698,25 +736,24 @@ void removeSale()
 			cin >> orderID;
 
 			cout << "\nAre you looking for Order ID eqaul to(=) or not eqaul(!=) to?" << endl;
-
 			cout << ">";
 			cin >> orderOP;
 			
+			if (orderOP == "=")
+				sql = "DELETE FROM "+salesDB+" WHERE (orderID == " + orderID + " && isPending == 1)";
+			else if (orderOP == "!=")
+				sql = "DELETE FROM "+salesDB+" WHERE (orderID != " + orderID + " && isPending == 1)";
+			else
+				sql = "ERROR";
+			
 			if(!isNumber(orderID)) 
 				sql="ERROR";
-			if (orderOP == "=")
-				sql = "DELETE FROM "+salesDB+" WHERE (orderID == " + orderID + ")";
-			else
-				sql = "DELETE FROM "+salesDB+" WHERE (orderID != " + orderID + ")";
-
 			break;
 		case 2:
 			//Employee ID
 			cout <<"\nWhat is the Employee ID?" << endl;
 			cout << ">";
 			cin >> employeeID;
-			if(!isNumber(employeeID)) 
-				sql="ERROR";
 			
 			//find op
 			cout << "\nAre you deleting records that are eqaul (=) to or not equal (!=) to Employee ID?"
@@ -725,10 +762,14 @@ void removeSale()
 			cin >> employeeIDop;
 			
 			if(employeeIDop == "=")
-				sql = "DELETE FROM "+salesDB+" WHERE (employeeID == " + employeeID + ")";
+				sql = "DELETE FROM "+salesDB+" WHERE (employeeID == " + employeeID + "&& isPending == 1)";
+			else if(employeeIDop == "!=")
+				sql = "DELETE FROM "+salesDB+" WHERE (employeeID != " + employeeID + "&& isPending == 1)";
 			else
-				sql = "DELETE FROM "+salesDB+" WHERE (employeeID != " + employeeID + ")";
+				sql = "ERROR";
 			
+			if(!isNumber(employeeID)) 
+				sql="ERROR";
 			break;
 		case 3:
 			//Customer
@@ -743,30 +784,15 @@ void removeSale()
 			cin >> customerOP;
 			
 			if(customerOP == "=")
-				sql = "DELETE FROM "+salesDB+" WHERE (customerName == " + customer + ")";
+				sql = "DELETE FROM "+salesDB+" WHERE (customerName == \"" + customer + "\" && isPending == 1)";
+			else if(customerOP == "!=")
+				sql = "DELETE FROM "+salesDB+" WHERE (customerName != \"" + customer + "\" && isPending == 1)";
 			else
-				sql = "DELETE FROM "+salesDB+" WHERE (customerName != " + customer + ")";
+				sql = "ERROR";
 
 			break;
-		case 4:
-			//Model
-			cout <<"\nWhat is the Model name of the car?" << endl;
-			cout << ">";
-			cin >> model;
-			
-			//find op
-			cout << "\nAre you deleting records that are eqaul (=) to or not equal (!=) to Model name"
-				 << endl;
-			cout << ">";
-			cin >> modelOP;
-			
-			if(modelOP == "=")
-				sql = "DELETE FROM "+salesDB+" WHERE (model == " + model + ")";
-			else
-				sql = "DELETE FROM "+salesDB+" WHERE (model != " + model + ")";
-	
-			break;
 		default:
+			sql = "ERROR";
 			break;
 			
 	}
@@ -1088,40 +1114,44 @@ void updateAmountOwed()
 		if(isdigit(date[z]))
 			dateOfPurchase+=date[z];
 	}
-	string enteredDate = dateOfPurchase.substr(4,4);
-	//cout<<enteredDate<<endl;
-	enteredDate += dateOfPurchase.substr(0,2);
-	//cout<<enteredDate<<endl;
-	enteredDate += dateOfPurchase.substr(2,2);
-	//cout<<enteredDate<<endl;
-	dateOfPurchase = enteredDate;
-	
-	cout << "\nWhat is the new amount that this customer owes?"<<endl;
-	cout << ">";
-	string amountOwed;
-	cin >> amountOwed;
-	
-	sql = "UPDATE owns SET amountOwed = " +amountOwed+" WHERE (customerName == \"" 
-		+customerName+ "\" && dateOfPurchase == " + dateOfPurchase + ");\n";
-		
-	
-	
-	
-	if(!isNumber(amountOwed))
-		sql = "ERROR";
-	
-	if(sql != "ERROR")
+	if(dateOfPurchase.size() >= 8)
 	{
-		writePipe(sql);
-		cout<<readPipe();
-		sql = "UPDATE sales SET amountOwed = " +amountOwed+" WHERE (customerName == \"" 
+		string enteredDate = dateOfPurchase.substr(4,4);
+		//cout<<enteredDate<<endl;
+		enteredDate += dateOfPurchase.substr(0,2);
+		//cout<<enteredDate<<endl;
+		enteredDate += dateOfPurchase.substr(2,2);
+		//cout<<enteredDate<<endl;
+		dateOfPurchase = enteredDate;
+	
+		cout << "\nWhat is the new amount that this customer owes?"<<endl;
+		cout << ">";
+		string amountOwed;
+		cin >> amountOwed;
+		
+		sql = "UPDATE owns SET amountOwed = " +amountOwed+" WHERE (customerName == \"" 
 			+customerName+ "\" && dateOfPurchase == " + dateOfPurchase + ");\n";
-		writePipe(sql);
-		cout<<readPipe();
+		
+		
+		
+		
+		if(!isNumber(amountOwed))
+			sql = "ERROR";
+		
+		if(sql != "ERROR")
+		{
+			writePipe(sql);
+			//cout<<readPipe();
+			sql = "UPDATE sales SET amountOwed = " +amountOwed+" WHERE (customerName == \"" 
+				+customerName+ "\" && dateOfPurchase == " + dateOfPurchase + ");\n";
+			writePipe(sql);
+			//cout<<readPipe();
+		}
+		else
+			cerr << "ERROR you entered wrong information for the Update Customer Amount Owed" << endl;
 	}
 	else
-		cerr << "ERROR you entered wrong information for the Update Customer Amount Owed" << endl;
-	
+		cerr << "\nERROR invlaid date input" << endl;
 }
 
 int main()
