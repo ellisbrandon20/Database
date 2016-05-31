@@ -4,10 +4,10 @@ In this team project (3 members) we were assigned to create a database engine, p
 
 This project was broken up into 4 deliverables:
 
-1.) Design Spec and Documents
-2.) Database Engine
-3.) Parser
-4.) Application
+1. Design Spec and Documents
+2. Database Engine
+3. Parser
+4. Application
 
 If you wish to download this code and run our application please refer to the WIKI page. 
 NOTE: We used Texas A&M University servers to compile and run our program.
